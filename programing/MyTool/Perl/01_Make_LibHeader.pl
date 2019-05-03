@@ -29,6 +29,9 @@ sub	MAKE_LIB_HDR {
 }
 
 open(HPP, "> $INCLUDEDIR\\add_libs.hpp") or die "Error!!!";
+print HPP "#ifndef ADD_LIBS_HPP\n";
+print HPP "#define ADD_LIBS_HPP\n";
+print HPP "\n";
 print HPP "#if _DEBUG\n";
 foreach my $d_lib (@D_LIB_ARR) {
 	print "$d_lib\n";
@@ -43,5 +46,7 @@ foreach my $r_lib (@R_LIB_ARR) {
 	print HPP "$r_lib";
 	print HPP " )\n";
 }
+print HPP "#endif\n";
+print HPP "\n";
 print HPP "#endif\n";
 close(HPP);
