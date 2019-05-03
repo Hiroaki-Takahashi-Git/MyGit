@@ -10,10 +10,10 @@ FOR /F "usebackq" %%f IN (`type list.txt`) DO (
 	
 	REM	処理01
 	REM	ループで出力されたファイルを一時的に別の名前にする
-	FOR /F "usebackq" %%i IN (`%WORKDIR%\02_Extract_FileName.bat !FNAME1!`) DO (
+	FOR /F "usebackq" %%i IN (`%WORKDIR%\03_Extract_FileName.bat !FNAME1!`) DO (
 		SET FNAME2=%%i
 	)
-	FOR /F "usebackq" %%j IN (`%WORKDIR%\03_Extract_DirPath.bat !FNAME1!`) DO (
+	FOR /F "usebackq" %%j IN (`%WORKDIR%\04_Extract_DirPath.bat !FNAME1!`) DO (
 		SET DPATH=%%j
 	)
 	cd !DPATH!
