@@ -4,8 +4,18 @@ use File::Path;
 use File::Find;
 
 my	$SRCROOT	=	$ARGV[0];
+my	$VERSION	=	$ARGV[1];
+
+my	$ARGC	= scalar(@ARGV);
 
 my	$INCLUDEDIR	=	"$SRCROOT\\include";
+my	$VER_STRING	=	$VERSION;
+
+if ( $ARGC == 2 ) {
+	$VER_STRING	=~	s/\.//g;
+} else {
+	$VER_STRING = "";
+}
 
 my	@D_LIB_ARR	=	();
 my	@R_LIB_ARR	=	();
@@ -19,9 +29,9 @@ sub	MAKE_LIB_HDR {
 	
 	# Debug—p‚ÆRelease—p‚É•ª‚¯‚é
 	if ( $libname =~ /\.lib$/ ) {
-		if ( $libname =~ /d\.lib$/ ) {
+		if ( $libname =~ /${VER_STRING}d\.lib$/ ) {
 			push(@D_LIB_ARR, $libname);
-		} else {
+		} elsif ( $libname =~ /${VER_STRING}\.lib$/ ) {
 			push(@R_LIB_ARR, $libname);
 		}
 	}
