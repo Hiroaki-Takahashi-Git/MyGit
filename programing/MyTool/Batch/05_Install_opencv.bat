@@ -22,9 +22,7 @@ IF EXIST "CmakeCache.txt" (
 cmake -G "Visual Studio 15 2017 Win64" %OPENCV_BASE%\opencv ^
 -DCMAKE_INSTALL_PREFIX=%OPENCV_INSTALL% ^
 -DOPENCV_EXTRA_MODULES_PATH=%OPENCV_EXTRA%\modules ^
--DLeptonica_DIR=%VCPKG_SHARE%\leptonica ^
--DTesseract_DIR=%VCPKG_SHARE%\tesseract ^
--DLAPACK_DIR=%VCPKG_SHARE%\lapack ^
+-DCMAKE_TOOLCHAIN_FILE=C:\Develop\vcpkg\scripts\buildsystems\vcpkg.cmake ^
 -DBUILD_opencv_text=ON
 endlocal
 @echo on
