@@ -45,15 +45,15 @@ print HPP "\n";
 print HPP "#if _DEBUG\n";
 foreach my $d_lib (@D_LIB_ARR) {
 	print "$d_lib\n";
-	print HPP "#pragma comment( lib, ";
-	print HPP "$d_lib";
+	print HPP "\t#pragma comment( lib, ";
+	print HPP "\"$d_lib\"";
 	print HPP " )\n";
 }
 print HPP "#else\n";
 foreach my $r_lib (@R_LIB_ARR) {
 	print "$r_lib\n";
-	print HPP "#pragma comment( lib, ";
-	print HPP "$r_lib";
+	print HPP "\t#pragma comment( lib, ";
+	print HPP "\"$r_lib\"";
 	print HPP " )\n";
 }
 print HPP "#endif\n";
