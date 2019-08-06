@@ -29,6 +29,10 @@ def PD_GET_SKILL(IN_TAG):
 		SKILL_TAG = DIV_TAG.find('h3', attrs={'class', 'title-border mb-3'})
 		SKILL_NAME_TAG = DIV_TAG.find('p', attrs={'class', 'mb-2'})
 		SKILL_CAT_TAG = DIV_TAG.find('ul', attrs={'class', 'list-round-rect mb-4 spacer'})
+		#print(SKILL_CAT_TAG)
+		if SKILL_CAT_TAG is None:
+			#SKILL_ARR.append('NOSKILL')
+			continue
 		SKILL_TXT_TAG = DIV_TAG.find('p', attrs={'class', 'mb-3'})
 		#print(SKILL_CAT_TAG)
 		#スキル名の取得
@@ -51,6 +55,9 @@ def PD_GET_SKILL(IN_TAG):
 				SKILL_ARR.append(SKILL_STR)
 				SKILL_CAT_ALL = SKILL_CAT_TAG.find_all('a')
 				#print(SKILL_CAT_ALL)
+				#print(type(SKILL_CAT_ALL))
+				if SKILL_CAT_ALL is None:
+					print("要素がありません。\n")
 				CAT_ARR = []
 				for SKILL_CAT in SKILL_CAT_ALL:
 					SKILL_CAT_STR = SKILL_CAT.get_text(strip=True)
@@ -69,7 +76,7 @@ def PD_GET_SKILL(IN_TAG):
 				#print(test)
 				SKILL_ARR.append(SKILL_TEXT)
 				#SKILL_ARR.append(SKILL_TEXT2)
-	#print(SKILL_ARR)
+	print(SKILL_ARR)
 	return(SKILL_ARR)
 
 #テキスト文書に改行'\n'を挿入する

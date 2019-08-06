@@ -21,13 +21,17 @@ def main(INPUT_PATH, START, STOP):
 		BASENAME = INPUT_PATH + '\\' + "PDMonster" + IDXSTR
 		CoModule01.MKDIR(BASENAME)
 		
-		# #情報の取得
-		# F_NAME = BASENAME + '\\' + "PDMonster" + IDXSTR + ".tsv"
-		# print(F_NAME)
-		# MyModule01.main(ID, F_NAME)
+		#情報の取得
+		F_NAME = BASENAME + '\\' + "PDMonster" + IDXSTR + ".tsv"
+		print(F_NAME)
+		RTN = MyModule01.main(ID, F_NAME)
+		#print(RTN)
+		#情報取得が失敗したら、スキップ
+		if RTN is "FAILURE":
+			continue
 
 		#進化の系統情報の取得
-		MyModule02.main(ID)
+		#MyModule02.main(ID)
 		
 if __name__=="__main__":
     main(ROOT_DPATH, STRT_NUMSTR, STOP_NUMSTR)

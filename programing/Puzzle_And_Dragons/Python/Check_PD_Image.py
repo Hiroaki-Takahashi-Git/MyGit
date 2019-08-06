@@ -8,7 +8,7 @@ import numpy as np
 import re
 import requests
 import codecs
-import cv2
+#import cv2
 
 #©ì‚ÌŠÖ”
 module01 = __import__('01_Get_URL')

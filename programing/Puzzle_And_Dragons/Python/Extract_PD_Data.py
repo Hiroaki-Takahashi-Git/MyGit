@@ -8,7 +8,7 @@ from urllib import request
 import requests
 import texttable as ttb
 from bs4 import BeautifulSoup
-import cv2
+#import cv2
 import collections as cl
 import json
 
@@ -172,6 +172,9 @@ def main(NUMBER, FNAME):
 
 		#処理０７．スキル、リーダースキル
 		SKILL_ARR1 = PDM_SKILL.PD_GET_SKILL(URL)
+		SKILL_ARR_SZ = len(SKILL_ARR1)
+		if SKILL_ARR_SZ == 0:
+			return("FAILURE")
 		# print("スキル・リーダースキル =")
 		SKILL_COL = ["", "名前", "タイプ", "内容"]
 		SKILL_TBL = ttb.Texttable()
@@ -256,7 +259,7 @@ def main(NUMBER, FNAME):
 		REQ = request.urlopen(IMG_PATH)
 		f = open(IMG_NAME, "wb")
 		f.write(REQ.read())
-		f.close()		
+		f.close()
 
 	else:
 		ERROR_TBL = ttb.Texttable()
@@ -264,10 +267,11 @@ def main(NUMBER, FNAME):
 		ERROR_DAT = ["NODATA"]
 		ERROR_TBL = MODULE04.MAKE_MATRIX(ERROR_COL, ERROR_DAT)
 		TBL_ARR.append(ERROR_TBL)
+		return("FAILURE")
 
-	for TBL in TBL_ARR:
-		print(TBL.draw())
-		print("")
+	#for TBL in TBL_ARR:
+	#	print(TBL.draw())
+	#	print("")
 	
 	writeData(FNAME, TBL_ARR)
 
@@ -276,6 +280,7 @@ def main(NUMBER, FNAME):
 	FW_JSON = codecs.open(JSON_NAME, 'w', 'utf-8')
 	json.dump(PD_DATA_CL, FW_JSON, ensure_ascii=False, indent=4)
 	FW_JSON.close()
+	return("SUCCESS")
 
 if __name__ == "__main__":
 	INT_NUM = int(PD_NUMBER)
