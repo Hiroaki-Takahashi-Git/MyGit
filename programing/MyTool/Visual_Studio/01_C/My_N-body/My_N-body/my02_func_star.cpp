@@ -89,9 +89,14 @@ float calc_acc(std::vector<star_inf> &in_pos)
 			acc.ay += m * dy * inv_dist1;
 			acc.az += m * dz * inv_dist1;
 		}
+		//std::printf("%.3lf\t%.3lf\t%.3lf\n", acc.ax, acc.ay, acc.az);
 
 		//加速度の値を代入
 		memcpy_s(&in_pos.at(i).st_a, sizeof(star_acc), &acc, sizeof(star_acc));
+		//std::printf("%.3lf\t%.3lf\t%.3lf\n",
+		//	in_pos.at(i).st_a.ax,
+		//	in_pos.at(i).st_a.ay,
+		//	in_pos.at(i).st_a.az);
 	}
 	return ret;
 }
@@ -99,6 +104,9 @@ float update_inf(float dt, std::vector<star_inf> &old_inf, std::vector<star_inf>
 {
 	int i;
 	float ret = 0;
+
+	int N_sz = (int)new_inf.size();
+	//std::cout << "Size : " << N_sz << std::endl;
 
 	star_inf new_star;
 
@@ -114,7 +122,21 @@ float update_inf(float dt, std::vector<star_inf> &old_inf, std::vector<star_inf>
 		//天体の速度を更新
 		ret = calc_vel(dt, &old_inf.at(i).st_v, &old_inf.at(i).st_a, &new_star.st_v);
 
-		new_inf.push_back(new_star);
+		//天体の質量をコピー
+		new_star.m = old_inf.at(i).m;
+
+		std::printf("%f\t%f\t%f\t%f\t%f\t%f\t%f\n"
+			, old_inf.at(i).m
+			, old_inf.at(i).st_p.px, old_inf.at(i).st_p.py, old_inf.at(i).st_p.pz
+			, old_inf.at(i).st_v.vx, old_inf.at(i).st_v.vy, old_inf.at(i).st_v.vz);
+
+		if (N_sz == 0)
+		{
+			new_inf.push_back(new_star);
+		}
+		else {
+			memcpy_s(&new_inf.at(i), sizeof(star_inf), &new_star, sizeof(star_inf));
+		}
 	}
 
 	return ret;

@@ -15,34 +15,42 @@ int main(int argc, char **argv)
 	float DT;
 	int STEP, MAXSTEP;
 	float RTN;
+	ifstream ifs;
 	vector<star_inf> VEC_CUR_STAR_INF;
 	vector<star_inf> VEC_NEW_STAR_INF;
+	star_inf rd_star;
 
 	//引数から入力
 	INPUT = argv[1];
 	DT = atof(argv[2]);
 	MAXSTEP = atoi(argv[3]);
 
-	cout << "input:" << INPUT << endl;
-	cout << "DT = " << DT << endl;
+	//cout << "input:" << INPUT << endl;
+	//cout << "DT = " << DT << endl;
 
 	RTN = 0;
-
 
 	//データを読み取り
 	RTN = read_data(INPUT, VEC_CUR_STAR_INF);
 
+	//天体の位置と速度の時間変化を計算
 	STEP = 0;
 	while (STEP < MAXSTEP)
 	{
+		std::cout << "STEP:" << STEP << std::endl;
+
 		//加速度を計算
 		RTN = calc_acc(VEC_CUR_STAR_INF);
 
 		//天体の情報を更新
+		//RTN = calc_acc(VEC_CUR_STAR_INF);
 		RTN = update_inf(DT, VEC_CUR_STAR_INF, VEC_NEW_STAR_INF);
 
-		//配列をコピー
-		copy(VEC_NEW_STAR_INF.begin(), VEC_NEW_STAR_INF.end(), back_inserter(VEC_CUR_STAR_INF));
+		//天体の座標を入れ替える
+		for (int i = 0; i < (int)VEC_CUR_STAR_INF.size(); i++)
+		{
+			memcpy_s(&VEC_CUR_STAR_INF.at(i), sizeof(star_inf), &VEC_NEW_STAR_INF.at(i), sizeof(star_inf));
+		}
 
 		STEP++;
 	}

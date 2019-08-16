@@ -10,6 +10,7 @@
 #define PCH_H
 
 // TODO: ここでプリコンパイルするヘッダーを追加します
+#include <Windows.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
