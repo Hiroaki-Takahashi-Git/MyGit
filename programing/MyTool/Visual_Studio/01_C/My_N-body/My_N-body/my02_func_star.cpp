@@ -109,18 +109,92 @@ float update_inf(float dt, std::vector<star_inf> &old_inf, std::vector<star_inf>
 	//std::cout << "Size : " << N_sz << std::endl;
 
 	star_inf new_star;
+	star_inf k1, k2, k3, k4;
+	star_inf tmp1, tmp2, tmp3;
 
 	int N = (int)old_inf.size();
 
 	for (i = 0; i < N; i++)
 	{
+		//初期化
 		memset(&new_star, 0x00, sizeof(new_star));
+		memset(&tmp1, 0x00, sizeof(tmp1));
+		memset(&tmp2, 0x00, sizeof(tmp2));
+		memset(&tmp3, 0x00, sizeof(tmp3));
+		memset(&k1, 0x00, sizeof(k1));
+		memset(&k2, 0x00, sizeof(k2));
+		memset(&k3, 0x00, sizeof(k3));
+		memset(&k4, 0x00, sizeof(k4));
 
 		//天体の位置を更新
-		ret = calc_pos(dt, &old_inf.at(i).st_p, &old_inf.at(i).st_v, &new_star.st_p);
+#if 0
+		//ret = calc_pos(dt, &old_inf.at(i).st_p, &old_inf.at(i).st_v, &new_star.st_p);
+#else
+		ret = calc_pos(dt, &old_inf.at(i).st_p, &old_inf.at(i).st_v, &k1.st_p);
+		k1.st_p.px *= dt;
+		k1.st_p.py *= dt;
+		k1.st_p.pz *= dt;
+		tmp1.st_p.px = old_inf.at(i).st_p.px + k1.st_p.px / 2;
+		tmp1.st_p.py = old_inf.at(i).st_p.py + k1.st_p.py / 2;
+		tmp1.st_p.pz = old_inf.at(i).st_p.pz + k1.st_p.pz / 2;
+		ret = calc_pos(dt+dt/2, &tmp1.st_p, &old_inf.at(i).st_v, &k2.st_p);
+		k2.st_p.px *= dt;
+		k2.st_p.py *= dt;
+		k2.st_p.pz *= dt;
+		tmp2.st_p.px = old_inf.at(i).st_p.px + k2.st_p.px / 2;
+		tmp2.st_p.py = old_inf.at(i).st_p.py + k2.st_p.py / 2;
+		tmp2.st_p.pz = old_inf.at(i).st_p.pz + k2.st_p.pz / 2;
+		ret = calc_pos(dt+dt/2, &tmp2.st_p, &old_inf.at(i).st_v, &k3.st_p);
+		k3.st_p.px *= dt;
+		k3.st_p.py *= dt;
+		k3.st_p.pz *= dt;
+		tmp3.st_p.px = old_inf.at(i).st_p.px + k3.st_p.px;
+		tmp3.st_p.py = old_inf.at(i).st_p.py + k3.st_p.py;
+		tmp3.st_p.pz = old_inf.at(i).st_p.pz + k3.st_p.pz;
+		ret = calc_pos(dt, &tmp3.st_p, &old_inf.at(i).st_v, &k4.st_p);
+		k4.st_p.px *= dt;
+		k4.st_p.py *= dt;
+		k4.st_p.pz *= dt;
+		//new_star.st_p = old_inf.at(i).st_p + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+		new_star.st_p.px = old_inf.at(i).st_p.px + (k1.st_p.px + 2 * k2.st_p.px + 2 * k3.st_p.px + k4.st_p.px) / 6;
+		new_star.st_p.py = old_inf.at(i).st_p.py + (k1.st_p.py + 2 * k2.st_p.py + 2 * k3.st_p.py + k4.st_p.py) / 6;
+		new_star.st_p.pz = old_inf.at(i).st_p.pz + (k1.st_p.pz + 2 * k2.st_p.pz + 2 * k3.st_p.pz + k4.st_p.pz) / 6;
+#endif
 		
 		//天体の速度を更新
-		ret = calc_vel(dt, &old_inf.at(i).st_v, &old_inf.at(i).st_a, &new_star.st_v);
+#if 0
+		//ret = calc_vel(dt, &old_inf.at(i).st_v, &old_inf.at(i).st_a, &new_star.st_v);
+#else
+		ret = calc_vel(dt, &old_inf.at(i).st_v, &old_inf.at(i).st_a, &k1.st_v);
+		k1.st_v.vx *= dt;
+		k1.st_v.vy *= dt;
+		k1.st_v.vz *= dt;
+		tmp1.st_v.vx = old_inf.at(i).st_v.vx + k1.st_v.vx / 2;
+		tmp1.st_v.vy = old_inf.at(i).st_v.vy + k1.st_v.vy / 2;
+		tmp1.st_v.vz = old_inf.at(i).st_v.vz + k1.st_v.vz / 2;
+		ret = calc_vel(dt / 2, &tmp1.st_v, &old_inf.at(i).st_a, &k2.st_v);
+		k2.st_v.vx *= dt;
+		k2.st_v.vy *= dt;
+		k2.st_v.vz *= dt;
+		tmp2.st_v.vx = old_inf.at(i).st_v.vx + k2.st_v.vx / 2;
+		tmp2.st_v.vy = old_inf.at(i).st_v.vy + k2.st_v.vy / 2;
+		tmp2.st_v.vz = old_inf.at(i).st_v.vz + k2.st_v.vz / 2;
+		ret = calc_vel(dt / 2, &tmp2.st_v, &old_inf.at(i).st_a, &k3.st_v);
+		k3.st_v.vx *= dt;
+		k2.st_v.vy *= dt;
+		k2.st_v.vz *= dt;
+		tmp3.st_v.vx = old_inf.at(i).st_v.vx + k3.st_v.vx;
+		tmp3.st_v.vy = old_inf.at(i).st_v.vy + k3.st_v.vy;
+		tmp3.st_v.vz = old_inf.at(i).st_v.vz + k3.st_v.vz;
+		ret = calc_vel(dt, &tmp3.st_v, &old_inf.at(i).st_a, &k4.st_v);
+		k4.st_v.vx *= dt;
+		k4.st_v.vy *= dt;
+		k4.st_v.vz *= dt;
+		//new_star.st_v = old_inf.at(i).st_v + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+		new_star.st_v.vx = old_inf.at(i).st_v.vx + (k1.st_v.vx + 2 * k2.st_v.vx + 2 * k3.st_v.vx + k4.st_v.vx) / 6;
+		new_star.st_v.vy = old_inf.at(i).st_v.vy + (k1.st_v.vy + 2 * k2.st_v.vy + 2 * k3.st_v.vy + k4.st_v.vy) / 6;
+		new_star.st_v.vz = old_inf.at(i).st_v.vz + (k1.st_v.vz + 2 * k2.st_v.vz + 2 * k3.st_v.vz + k4.st_v.vz) / 6;
+#endif
 
 		//天体の質量をコピー
 		new_star.m = old_inf.at(i).m;
