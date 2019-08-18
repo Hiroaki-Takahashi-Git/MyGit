@@ -11,14 +11,15 @@ using namespace std;
 int main(int argc, char **argv)
 {
     //std::cout << "Hello World!\n";
+	int i;
 	string INPUT;
-	float DT;
+	float DT, T;
 	int STEP, MAXSTEP;
 	float RTN;
 	ifstream ifs;
+	vector<star_inf> STAR_INF0;
 	vector<star_inf> VEC_CUR_STAR_INF;
 	vector<star_inf> VEC_NEW_STAR_INF;
-	star_inf rd_star;
 
 	//引数から入力
 	INPUT = argv[1];
@@ -35,6 +36,13 @@ int main(int argc, char **argv)
 
 	//天体の位置と速度の時間変化を計算
 	STEP = 0;
+	if (STEP == 0)
+	{
+		for (i = 0; i <(int)VEC_CUR_STAR_INF.size(); i++)
+		{
+			STAR_INF0.push_back(VEC_CUR_STAR_INF.at(i));
+		}
+	}
 	while (STEP < MAXSTEP)
 	{
 		std::cout << "STEP:" << STEP << std::endl;
@@ -43,9 +51,13 @@ int main(int argc, char **argv)
 		RTN = calc_acc(VEC_CUR_STAR_INF);
 
 		//天体の情報を更新
+		T = (float)STEP * DT;
 		//RTN = calc_acc(VEC_CUR_STAR_INF);
+#if 0
+		//RTN = update_inf(T, DT, STAR_INF0, VEC_CUR_STAR_INF, VEC_NEW_STAR_INF);
+#else
 		RTN = update_inf(DT, VEC_CUR_STAR_INF, VEC_NEW_STAR_INF);
-
+#endif
 		//天体の座標を入れ替える
 		for (int i = 0; i < (int)VEC_CUR_STAR_INF.size(); i++)
 		{
