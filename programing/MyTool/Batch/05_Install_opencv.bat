@@ -16,6 +16,7 @@ SET OPENCV_BUILD=%OPENCV_BASE%\opencv_build
 SET OPENCV_INSTALL=%OPENCV_BASE%\opencv_install
 
 cd /d %OPENCV_BUILD%
+del /Q /S .\*.vcxproj
 IF EXIST "CmakeCache.txt" (
 	del /Q /S CmakeCache.txt
 )
