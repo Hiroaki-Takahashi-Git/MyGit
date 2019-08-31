@@ -25,5 +25,8 @@ cmake -G "Visual Studio 15 2017 Win64" %OPENCV_BASE%\opencv ^
 -DOPENCV_EXTRA_MODULES_PATH=%OPENCV_EXTRA%\modules ^
 -DCMAKE_TOOLCHAIN_FILE=C:\Develop\vcpkg\scripts\buildsystems\vcpkg.cmake ^
 -DBUILD_opencv_text=ON
+
+msbuild INSTALL.vcxproj /t:clean;rebuild /p:Configuration=Release;Platform="x64"
+msbuild INSTALL.vcxproj /t:clean;rebuild /p:Configuration=Debug;Platform="x64"
 endlocal
 @echo on
