@@ -149,9 +149,6 @@ def mk_evo_dot(IN_NUM, IN_ARR):
 	print(G)
 	#pngŒ`®‚Å•Û‘¶
 	G.render(png_fname)
-	# f = codecs.open(dot_fname, "w", "cp932", "ignore")
-	# f.write(G)
-	# f.close()
 
 #ƒNƒ‰ƒX}‚Ìì¬
 def mk_evo_uml(IN_NUM, IN_ARR):
