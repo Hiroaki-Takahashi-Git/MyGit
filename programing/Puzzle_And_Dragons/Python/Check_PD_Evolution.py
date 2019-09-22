@@ -1,6 +1,7 @@
 #coding:	cp932
 from bs4 import BeautifulSoup
 from urllib import request
+from graphviz import Digraph
 import sys
 import types
 import os
@@ -94,6 +95,63 @@ def pd_get_number(IN_TAG):
 def pd_get_name(IN_TAG):
 	name = IN_TAG.find('div', attrs={'class', 'name'})
 	return(name.get_text(strip=True))
+
+#ドットファイル(*.dot)の作成
+def mk_evo_dot(IN_NUM, IN_ARR):
+	if os.path.isdir(PROD_DIR) != True:
+		os.mkdir(PROD_DIR)
+	#出力先のファイル名を設定
+	G = Digraph(format='png')
+	#フォント指定
+	G.attr('node', fontname="MS Gothic")
+	fname = 'PDMonster%06d' % int(IN_NUM)
+	png_fname = PROD_DIR + '\\' + fname
+	# dot_fname = PROD_DIR + '\\' + fname + '.dot'
+	#指定したモンスターの進化の情報
+	#進化前後
+	#進化素材
+	arr_size = len(IN_ARR)
+	#作成した行データ毎にメインのモンスターと進化素材を切り分ける
+	# (進化前モンスター番号_進化前モンスター名_進化素材番号_進化素材名_進化後モンスター番号_進化後モンスター名)
+	# (進化前モンスター番号?進化前モンスター名_進化後モンスター番号?進化後モンスター名)
+	com_arr = []
+	evo_arr = []
+	for i in range(0, arr_size):
+		data = IN_ARR[i].split(" ")
+		if len(data) == 4:
+			# print(IN_ARR[i])
+			#進化の本線部分の設定
+			#進化前のモンスター番号とモンスター名
+			bf_num = data[0]
+			bf_name = data[1]
+			#進化後のモンスター番号とモンスター名
+			af_num = data[2]
+			af_name = data[3]
+			bf_str = '{0}_{1}'.format(bf_num, bf_name)
+			af_str = '{0}_{1}'.format(af_num, af_name)
+			evo_str = '{0}_{1}'.format(bf_name, af_name)
+			com_arr.append(bf_str)
+			com_arr.append(af_str)
+			evo_arr.append(evo_str)
+	# #配列の重複を削除
+	com_uniq_arr = list(set(com_arr))
+	evo_uniq_arr = list(set(evo_arr))
+	for i2 in range(0, len(com_uniq_arr)):
+		linedata1 = com_uniq_arr[i2].split("_")
+		if int(linedata1[0]) == int(IN_NUM):
+			# print(linedata1[0])
+			G.node(linedata1[1], shape="doublecircle", color="red")
+		else:
+			G.node(linedata1[1], shape="box")
+	for i3 in range(0, len(evo_uniq_arr)):
+		linedata2 = evo_uniq_arr[i3].split("_")		
+		G.edge(linedata2[0], linedata2[1])
+	print(G)
+	#png形式で保存
+	G.render(png_fname)
+	# f = codecs.open(dot_fname, "w", "cp932", "ignore")
+	# f.write(G)
+	# f.close()
 
 #クラス図の作成
 def mk_evo_uml(IN_NUM, IN_ARR):
@@ -264,4 +322,5 @@ if __name__=="__main__":
 for k in range(0, len(RESULT)):
 	print(RESULT[k])
 
-mk_evo_uml(PDNUMBER, RESULT)
+# mk_evo_uml(PDNUMBER, RESULT)
+mk_evo_dot(PDNUMBER, list(set(RESULT)))
