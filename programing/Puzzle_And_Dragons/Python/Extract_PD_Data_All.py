@@ -19,6 +19,7 @@ def main(INPUT_PATH, START, STOP):
 		
 		#モンスター毎にディレクトリの作成
 		BASENAME = INPUT_PATH + '\\' + "PDMonster" + IDXSTR
+		print(BASENAME)
 		CoModule01.MKDIR(BASENAME)
 		
 		#情報の取得
@@ -31,7 +32,7 @@ def main(INPUT_PATH, START, STOP):
 			continue
 
 		#進化の系統情報の取得
-		#MyModule02.main(ID)
+		MyModule02.main(ID)
 		
 if __name__=="__main__":
     main(ROOT_DPATH, STRT_NUMSTR, STOP_NUMSTR)
