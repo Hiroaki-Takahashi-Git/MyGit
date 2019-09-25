@@ -97,16 +97,16 @@ def pd_get_name(IN_TAG):
 	return(name.get_text(strip=True))
 
 #ドットファイル(*.dot)の作成
-def mk_evo_dot(IN_NUM, IN_ARR):
-	if os.path.isdir(PROD_DIR) != True:
-		os.mkdir(PROD_DIR)
+def mk_evo_dot(ROOT_DIR, IN_NUM, IN_ARR):
+	if os.path.isdir(ROOT_DIR) != True:
+		os.mkdir(ROOT_DIR)
 	#出力先のファイル名を設定
 	G = Digraph(format='png')
 	#フォント指定
 	G.attr('node', fontname="MS Gothic")
 	fname = 'PDMonster%06d' % int(IN_NUM)
-	png_fname = PROD_DIR + '\\' + fname
-	# dot_fname = PROD_DIR + '\\' + fname + '.dot'
+	png_fname = ROOT_DIR + '\\' + fname
+	# dot_fname = ROOT_DIR + '\\' + fname + '.dot'
 	#指定したモンスターの進化の情報
 	#進化前後
 	#進化素材
@@ -138,25 +138,28 @@ def mk_evo_dot(IN_NUM, IN_ARR):
 	evo_uniq_arr = list(set(evo_arr))
 	for i2 in range(0, len(com_uniq_arr)):
 		linedata1 = com_uniq_arr[i2].split("_")
+		linedata1[1] = re.sub('，', ' ', linedata1[1])
 		if int(linedata1[0]) == int(IN_NUM):
 			# print(linedata1[0])
 			G.node(linedata1[1], shape="doublecircle", color="red")
 		else:
 			G.node(linedata1[1], shape="box")
 	for i3 in range(0, len(evo_uniq_arr)):
-		linedata2 = evo_uniq_arr[i3].split("_")		
+		linedata2 = evo_uniq_arr[i3].split("_")
+		linedata2[0] = re.sub('，', ' ', linedata2[0])
+		linedata2[1] = re.sub('，', ' ', linedata2[1])	
 		G.edge(linedata2[0], linedata2[1])
 	print(G)
 	#png形式で保存
 	G.render(png_fname)
 
 #クラス図の作成
-def mk_evo_uml(IN_NUM, IN_ARR):
-	if os.path.isdir(PROD_DIR) != True:
-		os.mkdir(PROD_DIR)
+def mk_evo_uml(ROOT_DIR, IN_NUM, IN_ARR):
+	if os.path.isdir(ROOT_DIR) != True:
+		os.mkdir(ROOT_DIR)
 	# pd_id = '%06d' % int(IN_NUM)
 	fname = 'PDMonster%06d.pu' % int(IN_NUM)
-	dat_fname = PROD_DIR + '\\' + fname
+	dat_fname = ROOT_DIR + '\\' + fname
 	#f = codecs.open(dat_fname, "w", "cp932", "ignore")
 	f = codecs.open(dat_fname, "w", "utf8", "ignore")
 	header = '@startuml' + '\t' + 'Number : ' + IN_NUM + '\n'
@@ -226,6 +229,9 @@ def CHECK_PD_BF_EVOLUTION(PD_NUM):
 			PD_BF_NUM = '%d' % int(pd_get_number(TAG))
 			#print(PD_BF_NUM)
 			PD_BF_NAME = pd_get_name(TAG)
+			#名前中の空白部分を別の文字に置換
+			PD_BF_NAME = re.sub(' ', '，', PD_BF_NAME)
+			PD_CUR_NAME = re.sub(' ', '，', PD_CUR_NAME)
 			linedata = str(PD_BF_NUM) + ' ' + PD_BF_NAME + ' ' + str(PD_NUM) + ' ' + PD_CUR_NAME
 			#print(linedata)
 			line_arr.append(linedata)
@@ -254,6 +260,7 @@ def CHECK_PD_AF_EVOLUTION(PD_NUM):
     		af_evo_list = []
     		for ELEM in EVO_ARRAY:
     			#print("ELEM = ", ELEM)
+    			PD_CUR_NAME = re.sub(' ', '，', PD_CUR_NAME)
     			linedata = str(PD_NUM) + ' ' + PD_CUR_NAME + ' ' + ELEM
     			line_arr.append(linedata)
     		for TAG in TAG_ALL:
@@ -261,6 +268,9 @@ def CHECK_PD_AF_EVOLUTION(PD_NUM):
     			PD_AF_NAME = pd_get_name(TAG)
     			af_evo_list.append(PD_AF_NUM)
     			af_evo_list.append(PD_AF_NAME)
+				#名前中の空白部分を別の文字に置換
+    			PD_CUR_NAME = re.sub(' ', '，', PD_CUR_NAME)
+    			PD_AF_NAME = re.sub(' ', '，', PD_AF_NAME)
     			linedata = str(PD_NUM) + ' ' + PD_CUR_NAME + ' ' + str(PD_AF_NUM) + ' ' + PD_AF_NAME
     			#print(linedata)
     			line_arr.append(linedata)
@@ -307,17 +317,21 @@ def af_main(PD_NUM):
 				af_main(next_num)
 			#main(next_num)
 
-def main(PD_NUM):
+def main(PD_PRODDIR, PD_NUM):
 	#PD_TEST(PD_NUM)
 	bf_main(PD_NUM)
 	af_main(PD_NUM)
+	mk_evo_dot(PD_PRODDIR, PD_NUM, list(set(RESULT)))
+	RESULT.clear()
+	# print('TEST\n')
 
 if __name__=="__main__":
-    main(int(PDNUMBER))
+    main(PROD_DIR, int(PDNUMBER))
 
 #SET_RESULT = list(set(RESULT))
 for k in range(0, len(RESULT)):
 	print(RESULT[k])
 
+# RESULT = []
 # mk_evo_uml(PDNUMBER, RESULT)
-mk_evo_dot(PDNUMBER, list(set(RESULT)))
+# mk_evo_dot(PDNUMBER, list(set(RESULT)))
