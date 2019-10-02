@@ -9,6 +9,7 @@ import numpy
 import re
 import requests
 import codecs
+import time
 
 #自作の関数
 module01 = __import__('01_Get_URL')
@@ -111,6 +112,7 @@ def mk_evo_dot(ROOT_DIR, IN_NUM, IN_ARR):
 	#進化前後
 	#進化素材
 	arr_size = len(IN_ARR)
+	print('Array Size : {0}\n'.format(arr_size))
 	#作成した行データ毎にメインのモンスターと進化素材を切り分ける
 	# (進化前モンスター番号_進化前モンスター名_進化素材番号_進化素材名_進化後モンスター番号_進化後モンスター名)
 	# (進化前モンスター番号?進化前モンスター名_進化後モンスター番号?進化後モンスター名)
@@ -127,84 +129,105 @@ def mk_evo_dot(ROOT_DIR, IN_NUM, IN_ARR):
 			#進化後のモンスター番号とモンスター名
 			af_num = data[2]
 			af_name = data[3]
-			bf_str = '{0}_{1}'.format(bf_num, bf_name)
-			af_str = '{0}_{1}'.format(af_num, af_name)
-			evo_str = '{0}_{1}'.format(bf_name, af_name)
-			com_arr.append(bf_str)
-			com_arr.append(af_str)
+			#進化前のモンスターの番号と名前
+			#bf_str = '{0}_{1}'.format(bf_num, bf_name)
+			#進化後のモンスターの番号と名前
+			#af_str = '{0}_{1}'.format(af_num, af_name)
+			bf_pd_node = mk_node_string(bf_num, bf_name)
+			af_pd_node = mk_node_string(af_num, af_name)
+			#進化前後のモンスター名
+			evo_str = '{0}_{1}'.format(bf_pd_node, af_pd_node)
+			com_arr.append(bf_pd_node)
+			com_arr.append(af_pd_node)
 			evo_arr.append(evo_str)
 	# #配列の重複を削除
 	com_uniq_arr = list(set(com_arr))
 	evo_uniq_arr = list(set(evo_arr))
 	for i2 in range(0, len(com_uniq_arr)):
-		linedata1 = com_uniq_arr[i2].split("_")
-		linedata1[1] = re.sub('，', ' ', linedata1[1])
-		if int(linedata1[0]) == int(IN_NUM):
+		# linedata1 = com_uniq_arr[i2].split("_")
+		# linedata1[1] = re.sub('，', ' ', linedata1[1])
+		# if int(linedata1[0]) == int(IN_NUM):
+		com_uniq_arr[i2] = re.sub('，', ' ', com_uniq_arr[i2])
+		print('Name:{0}\n'.format(com_uniq_arr[i2]))
+		pattern_str = 'No.%06d' % int(IN_NUM)
+		if re.match(pattern_str, com_uniq_arr[i2]):
 			# print(linedata1[0])
-			G.node(linedata1[1], shape="doublecircle", color="red")
+			# pd_node = mk_node_string(linedata1[0], linedata1[1])
+			# G.node(linedata1[1], shape="doublecircle", color="red")
+			G.node(com_uniq_arr[i2], shape="doublecircle", color="red")
 		else:
-			G.node(linedata1[1], shape="box")
+			# G.node(linedata1[1], shape="box")
+			G.node(com_uniq_arr[i2], shape="box")
 	for i3 in range(0, len(evo_uniq_arr)):
 		linedata2 = evo_uniq_arr[i3].split("_")
 		linedata2[0] = re.sub('，', ' ', linedata2[0])
-		linedata2[1] = re.sub('，', ' ', linedata2[1])	
-		G.edge(linedata2[0], linedata2[1])
+		linedata2[1] = re.sub('，', ' ', linedata2[1])
+		# 進化前後のモンスター名が同じか確認する
+		if linedata2[0] != linedata2[1]:	
+			G.edge(linedata2[0], linedata2[1])
 	print(G)
 	#png形式で保存
 	G.render(png_fname)
 
-#クラス図の作成
-def mk_evo_uml(ROOT_DIR, IN_NUM, IN_ARR):
-	if os.path.isdir(ROOT_DIR) != True:
-		os.mkdir(ROOT_DIR)
-	# pd_id = '%06d' % int(IN_NUM)
-	fname = 'PDMonster%06d.pu' % int(IN_NUM)
-	dat_fname = ROOT_DIR + '\\' + fname
-	#f = codecs.open(dat_fname, "w", "cp932", "ignore")
-	f = codecs.open(dat_fname, "w", "utf8", "ignore")
-	header = '@startuml' + '\t' + 'Number : ' + IN_NUM + '\n'
-	f.write(header)
-	arr_size = len(IN_ARR)
-	obj_arr = []
-	com_arr = []
-	for j in range(0, arr_size):
-		data = RESULT[j].split(" ")
-		if len(data) == 4:
-			bf_num = str('%06d' % int(data[0]))
-			bf_obj = data[1]
-			af_num = str('%06d' % int(data[2]))
-			af_obj = data[3]
-			bf_obj_str = "\tobject \"" + bf_obj + "\" as OBJID_" + bf_num + "\n"
-			#print(bf_obj_str)
-			af_obj_str = "\tobject \"" + af_obj + "\" as OBJID_" + af_num + "\n"
-			#print(af_obj_str)
-			obj_arr.append(bf_obj_str)
-			obj_arr.append(af_obj_str)
-			com_str = "\tOBJID_" + bf_num + " --|> OBJID_" + af_num + "\n"
-			com_arr.append(com_str)
-			#print(com_str)
-		else:
-			bf_num = str('%06d' % int(data[0]))
-			bf_obj = data[1]
-			mat_num = str('%06d' % int(data[2]))
-			mat_obj = data[3]
-			af_num = str('%06d' % int(data[4]))
-			af_obj = data[5]
-			mat_obj_str = "\tobject \"" + mat_obj + "\" as OBJID_" + mat_num + "\n"
-			obj_arr.append(mat_obj_str)
-			com_str = "\tOBJID_" + mat_num + " --* OBJID_" + af_num + "\n"
-			com_arr.append(com_str)
-	f.write("\n\t'オブジェクトの設定\n")
-	com_uniq_arr = list(set(com_arr))
-	obj_uniq_arr = list(set(obj_arr))
-	#print(obj_uniq_arr)
-	for k in range(0, len(obj_uniq_arr)):
-		f.write(obj_uniq_arr[k])
-	f.write("\n\t'進化の系統\n")
-	for l in range(0, len(com_uniq_arr)):
-		f.write(com_uniq_arr[l])
-	f.write("\n@enduml\n")
-	f.close()
+def mk_node_string(in_num, in_name):
+	in_num2 = '%06d' % int(in_num)
+	output = '''No.{pd_num}
+{pd_name}
+'''.format(pd_num = in_num2, pd_name = in_name)
+	return output
+
+# #クラス図の作成
+# def mk_evo_uml(ROOT_DIR, IN_NUM, IN_ARR):
+# 	if os.path.isdir(ROOT_DIR) != True:
+# 		os.mkdir(ROOT_DIR)
+# 	# pd_id = '%06d' % int(IN_NUM)
+# 	fname = 'PDMonster%06d.pu' % int(IN_NUM)
+# 	dat_fname = ROOT_DIR + '\\' + fname
+# 	#f = codecs.open(dat_fname, "w", "cp932", "ignore")
+# 	f = codecs.open(dat_fname, "w", "utf8", "ignore")
+# 	header = '@startuml' + '\t' + 'Number : ' + IN_NUM + '\n'
+# 	f.write(header)
+# 	arr_size = len(IN_ARR)
+# 	obj_arr = []
+# 	com_arr = []
+# 	for j in range(0, arr_size):
+# 		data = RESULT[j].split(" ")
+# 		if len(data) == 4:
+# 			bf_num = str('%06d' % int(data[0]))
+# 			bf_obj = data[1]
+# 			af_num = str('%06d' % int(data[2]))
+# 			af_obj = data[3]
+# 			bf_obj_str = "\tobject \"" + bf_obj + "\" as OBJID_" + bf_num + "\n"
+# 			#print(bf_obj_str)
+# 			af_obj_str = "\tobject \"" + af_obj + "\" as OBJID_" + af_num + "\n"
+# 			#print(af_obj_str)
+# 			obj_arr.append(bf_obj_str)
+# 			obj_arr.append(af_obj_str)
+# 			com_str = "\tOBJID_" + bf_num + " --|> OBJID_" + af_num + "\n"
+# 			com_arr.append(com_str)
+# 			#print(com_str)
+# 		else:
+# 			bf_num = str('%06d' % int(data[0]))
+# 			bf_obj = data[1]
+# 			mat_num = str('%06d' % int(data[2]))
+# 			mat_obj = data[3]
+# 			af_num = str('%06d' % int(data[4]))
+# 			af_obj = data[5]
+# 			mat_obj_str = "\tobject \"" + mat_obj + "\" as OBJID_" + mat_num + "\n"
+# 			obj_arr.append(mat_obj_str)
+# 			com_str = "\tOBJID_" + mat_num + " --* OBJID_" + af_num + "\n"
+# 			com_arr.append(com_str)
+# 	f.write("\n\t'オブジェクトの設定\n")
+# 	com_uniq_arr = list(set(com_arr))
+# 	obj_uniq_arr = list(set(obj_arr))
+# 	#print(obj_uniq_arr)
+# 	for k in range(0, len(obj_uniq_arr)):
+# 		f.write(obj_uniq_arr[k])
+# 	f.write("\n\t'進化の系統\n")
+# 	for l in range(0, len(com_uniq_arr)):
+# 		f.write(com_uniq_arr[l])
+# 	f.write("\n@enduml\n")
+# 	f.close()
 	
 def CHECK_PD_BF_EVOLUTION(PD_NUM):
 	pass
@@ -319,9 +342,17 @@ def af_main(PD_NUM):
 
 def main(PD_PRODDIR, PD_NUM):
 	#PD_TEST(PD_NUM)
+	start1 = time.time()
 	bf_main(PD_NUM)
+	bf_time = time.time() - start1
+	start2 = time.time()
 	af_main(PD_NUM)
+	af_time = time.time() - start2
 	mk_evo_dot(PD_PRODDIR, PD_NUM, list(set(RESULT)))
+	print("PD Number : {0}".format(int(PD_NUM)))
+	print("Elapsed Time (Before): {0}".format('%.3lf' % bf_time) + "[sec]")
+	print("Elapsed Time (After ): {0}".format('%.3lf' % af_time) + "[sec]")
+	print("\n")
 	RESULT.clear()
 	# print('TEST\n')
 

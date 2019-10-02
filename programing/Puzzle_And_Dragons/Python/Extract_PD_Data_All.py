@@ -3,7 +3,6 @@ import sys
 
 CoModule01 = __import__('04_Make_Directory')
 MyModule01 = __import__('Extract_PD_Data')
-MyModule02 = __import__('Check_PD_Evolution')
 
 args = sys.argv
 ROOT_DPATH	=	args[1]
@@ -30,9 +29,6 @@ def main(INPUT_PATH, START, STOP):
 		#情報取得が失敗したら、スキップ
 		if RTN is "FAILURE":
 			continue
-
-		#進化の系統情報の取得
-		MyModule02.main(ID)
 		
 if __name__=="__main__":
     main(ROOT_DPATH, STRT_NUMSTR, STOP_NUMSTR)
