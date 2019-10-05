@@ -8,6 +8,13 @@ my	$PREFIXNAME	=	$ARGV[1];
 my	$VERSION	=	$ARGV[2];
 
 my	$ARGC	= scalar(@ARGV);
+if ( $ARGC == 0 ) {
+	print "Usage;\n";
+	print "$0 [Path/to/Installed/include/dir] [version]\n";
+	print "Example:\n";
+	print "$0 %OPENCVDIR% 4.12";
+	exit(0);
+}
 
 my	$INCLUDEDIR	=	"$SRCROOT\\include";
 my	$VER_STRING	=	$VERSION;
