@@ -175,59 +175,6 @@ def mk_node_string(in_num, in_name):
 {pd_name}
 '''.format(pd_num = in_num2, pd_name = in_name)
 	return output
-
-# #クラス図の作成
-# def mk_evo_uml(ROOT_DIR, IN_NUM, IN_ARR):
-# 	if os.path.isdir(ROOT_DIR) != True:
-# 		os.mkdir(ROOT_DIR)
-# 	# pd_id = '%06d' % int(IN_NUM)
-# 	fname = 'PDMonster%06d.pu' % int(IN_NUM)
-# 	dat_fname = ROOT_DIR + '\\' + fname
-# 	#f = codecs.open(dat_fname, "w", "cp932", "ignore")
-# 	f = codecs.open(dat_fname, "w", "utf8", "ignore")
-# 	header = '@startuml' + '\t' + 'Number : ' + IN_NUM + '\n'
-# 	f.write(header)
-# 	arr_size = len(IN_ARR)
-# 	obj_arr = []
-# 	com_arr = []
-# 	for j in range(0, arr_size):
-# 		data = RESULT[j].split(" ")
-# 		if len(data) == 4:
-# 			bf_num = str('%06d' % int(data[0]))
-# 			bf_obj = data[1]
-# 			af_num = str('%06d' % int(data[2]))
-# 			af_obj = data[3]
-# 			bf_obj_str = "\tobject \"" + bf_obj + "\" as OBJID_" + bf_num + "\n"
-# 			#print(bf_obj_str)
-# 			af_obj_str = "\tobject \"" + af_obj + "\" as OBJID_" + af_num + "\n"
-# 			#print(af_obj_str)
-# 			obj_arr.append(bf_obj_str)
-# 			obj_arr.append(af_obj_str)
-# 			com_str = "\tOBJID_" + bf_num + " --|> OBJID_" + af_num + "\n"
-# 			com_arr.append(com_str)
-# 			#print(com_str)
-# 		else:
-# 			bf_num = str('%06d' % int(data[0]))
-# 			bf_obj = data[1]
-# 			mat_num = str('%06d' % int(data[2]))
-# 			mat_obj = data[3]
-# 			af_num = str('%06d' % int(data[4]))
-# 			af_obj = data[5]
-# 			mat_obj_str = "\tobject \"" + mat_obj + "\" as OBJID_" + mat_num + "\n"
-# 			obj_arr.append(mat_obj_str)
-# 			com_str = "\tOBJID_" + mat_num + " --* OBJID_" + af_num + "\n"
-# 			com_arr.append(com_str)
-# 	f.write("\n\t'オブジェクトの設定\n")
-# 	com_uniq_arr = list(set(com_arr))
-# 	obj_uniq_arr = list(set(obj_arr))
-# 	#print(obj_uniq_arr)
-# 	for k in range(0, len(obj_uniq_arr)):
-# 		f.write(obj_uniq_arr[k])
-# 	f.write("\n\t'進化の系統\n")
-# 	for l in range(0, len(com_uniq_arr)):
-# 		f.write(com_uniq_arr[l])
-# 	f.write("\n@enduml\n")
-# 	f.close()
 	
 def CHECK_PD_BF_EVOLUTION(PD_NUM):
 	pass
