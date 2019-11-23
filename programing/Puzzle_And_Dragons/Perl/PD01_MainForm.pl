@@ -8,6 +8,7 @@ use Encode 'decode';
 use Encode 'encode';
 use JSON;
 use File::Slurp;
+use File::Basename 'basename', 'dirname';
 use File::Path 'mkpath';
 
 my $PD_ROOTDIR  = "F:\\Puzzle_and_Dragons";
@@ -17,246 +18,463 @@ my $TOOL_PERL   = sprintf("%s\\Perl", $PD_TOOLDIR);
 my $TOOL_PYTHON = sprintf("%s\\Python", $PD_TOOLDIR);
 
 my $INPUT_NUM = "";
+my $TOP;
+my $Form02;
+my $Form03;
 
-sub Form01_CheckInput {
-    my ($tbx1, $tbx2) = @_;
-    my $tbx_01 = $tbx1->get;
-    my $tbx_02 = $tbx2->get;
+# メインウィンドウ
+&MAIN;
 
-    if ($tbx_01 eq '' && $tbx_02 eq '') {
-        my $msg = "番号か検索用キーワードを入力して下さい。";
-        print "Error!!!\n";
-        print encode('Shift_JIS', $msg), "\n";
+# ここから関数群
+sub MAIN {
+    $TOP = MainWindow->new();
+    $TOP->optionAdd('*font' => ['', 14]);
+    my $TOP_TITLE = $TOP->Label(-text => 'JSONデータ')->pack();
+    my $FRM01_F0 = $TOP->Frame(-width => 640, -height => 480);
+    my $LBL01 = $FRM01_F0->Label(-text => '番号を入力して下さい。',)->pack(-fill => 'x', -padx => 10, -pady => 10);
+    my $TBX01 = $FRM01_F0->Entry(-text => '')->pack();
+    my $LBL02 = $FRM01_F0->Label(-text => '名前を入力して下さい。',)->pack(-fill => 'x', -padx => 10, -pady => 10);
+    my $TBX02 = $FRM01_F0->Entry(-text => '')->pack();
+    my $FRM01_F1 = $TOP->Frame();
+    my $BTN01 = $FRM01_F1->Button(-text => '検索', -command => [\&Form01_Func01_CheckInput, $TBX01, $TBX02],)->pack(-side => 'left', -padx => 10, -pady => 10);
+    my $BTN02 = $FRM01_F1->Button(-text => '終了', -command => \&exit,)->pack(-side => 'left', -padx => 10, -pady => 10);
+    $FRM01_F0->pack();
+    $FRM01_F1->pack();
+
+    MainLoop();
+}
+
+sub Form01_Func01_CheckInput {
+    my ($TBX1, $TBX2) = @_;
+
+    my $tbx1_val = $TBX1->get;
+    my $tbx2_val = $TBX2->get;
+
+    my $msg = "エラーメッセージ";
+
+    # 先に開いているフレームを消す
+    if (Exists($TOP)) {
+        $TOP->withdraw;
     }
-    elsif (($tbx_01 ne '' && $tbx_02 eq '') ||
-           ($tbx_01 ne '' && $tbx_02 ne '')) {
-        if ($tbx_01 =~ /^\d+$/) {
-            &Class01_GetJSONData($tbx_01);
-        }
-        else {
-            my $msg = "数字を入力して下さい。";
-            print "Error!!!\n";
+
+    if ($tbx1_val eq '' && $tbx2_val eq '') {
+        $msg = "数字か検索ワードを入力して下さい。";
+        print encode('Shift_JIS', $msg), "\n";
+        $TOP->deiconify;
+    } elsif ($tbx1_val eq '' && $tbx2_val ne '') {
+        # 検索ワードを含むモンスター名を検索
+        &Form03_Main($tbx2_val);
+    } else {
+        if ($tbx1_val =~ /^\d+$/) {
+            &Form02_Main($tbx1_val);
+        } else {
+            $msg = "全部数字で入力して下さい。";
             print encode('Shift_JIS', $msg), "\n";
+            $TOP->deiconify;
         }
+    }
+}
+
+sub Form02_Main {
+    my ($IN_NUMBER) = @_;
+
+    my $JSON_FNAME = sprintf("%s\\PDMonster%06d\\PDMonster%06d.json", $PD_DATADIR, $IN_NUMBER, $IN_NUMBER);
+
+    # JSONファイルのチェック
+    my $ret = &Form02_Func01_CheckJSONFile($JSON_FNAME);
+    if ($ret == 0) {
+        # JSONファイルの読み取り
+        my $JSON_HASH = &Form02_Func02_ReadJSONFile($JSON_FNAME);
+
+        # JSONデータの表示
+        &Form02_Func04_DisplayGetItem($JSON_HASH);
     }
     else {
-        # モンスター名を探索
-        &Class02_SearchPDMonsterName($tbx_02);
-    }
-}
-sub Form02_DisplayGetItem {
-    my ($in_pd_hash) = @_;
-
-    # 画面の下地の作成
-    my $FRM02 = MainWindow->new();
-    my $FRM02_TITLE = $FRM02->Label(-text => 'JSONファイル取得結果')->pack();
-
-    # 表示項目の設定
-    # 番号、名前、レア、コスト
-    my @disparr1 = ();
-    my @disparr2 = ();
-    my $PD_Number = sprintf("番号：%d\t", $in_pd_hash->{number});
-    my $PD_Name = sprintf("名前：%s\t", $in_pd_hash->{name});
-    push(@disparr1, $PD_Number, $PD_Name);
-     my $PD_Rare = sprintf("レア度：%s\t", $in_pd_hash->{rare});
-    my $PD_Cost = sprintf("コスト：%d", $in_pd_hash->{cost});
-    # アシスト
-    my $PD_Assist = $in_pd_hash->{assistance};
-    # print "Assist\t$PD_Assist\n";
-    if ($PD_Assist =~ /^0+$/) {
-        $PD_Assist = sprintf("アシスト：×");
-    } else {
-        $PD_Assist = sprintf("アシスト：○");
-    }
-    push(@disparr2, $PD_Rare, $PD_Cost, $PD_Assist);
-    my $FRM02_F0 = $FRM02->Frame();
-    my $FRM02_F1 = $FRM02->Frame();
-    foreach my $displbl1 (@disparr1) {
-        $FRM02_F0->Label(-text => "$displbl1")->pack(-side => 'left');
-    }
-    foreach my $displbl2 (@disparr2) {
-        $FRM02_F1->Label(-text => "$displbl2")->pack(-side => 'left');
-    }
-
-
-    # exit;
-    # 終了ボタン
-    my $FRM02_FEXIT = $FRM02->Frame();
-    my $FRM02_BTN01 = $FRM02_FEXIT->Button(-text => '終了', -command => \&exit)->pack();
-    $FRM02_F0->pack();
-    $FRM02_F1->pack();
-    $FRM02_FEXIT->pack();
-}
-sub Class01_GetJSONData {
-    my ($in_number) = @_;
-
-    # my $in_number = $tbx->get;
-    my $PD_DIR = sprintf("%s\\PDMonster%06d", $PD_DATADIR, $in_number);
-    my $PD_FIL = sprintf("%s\\PDMonster%06d.json", $PD_DIR, $in_number);
-
-    # JSONファイルが存在してるか、確認
-    my $RET = &Class01_CheckFileExist($PD_FIL);
-    if ($RET != 0) {
-        # JSONファイル格納ディレクトリを作成
-        mkpath($PD_DIR);
         # JSONファイルの作成
-        my $pd_py_module = sprintf("%s\\Extract_PD_Data.py", $TOOL_PYTHON);
-        open(COM, "|python $pd_py_module $in_number $PD_FIL");
+        # ディレクトリ名の取得
+        my $JSON_DNAME = dirname $JSON_FNAME;
+        print "Make Directory : $JSON_DNAME\n";
+        mkpath($JSON_DNAME);
+
+        # WEBデータから取得
+        my $PY_MODULE = sprintf("%s\\Extract_PD_Data.py", $TOOL_PYTHON);
+        open(COM, "|python $PY_MODULE $IN_NUMBER $JSON_FNAME");
         close(COM);
-        print "JSON File has been created!!\n";
+
+        # 自身の関数を呼び出し
+        &Form02_Main($IN_NUMBER);
     }
-
-    # JSONファイルの読み込み
-    my $JSON_SRC = &Class01_GetData($PD_FIL);
-
-    # 取得結果表示用の画面生成処理に移行
-    &Form02_DisplayGetItem($JSON_SRC);
 }
-sub Class01_CheckFileExist {
-    my ($fname) = @_;
+sub Form02_Func01_CheckJSONFile {
+    my ($FNAME) = @_;
     my $ret = 0;
-    if (! -f $fname)
+    if (! -f $FNAME)
     {
         $ret = 1;
     }
     return $ret;
 }
-# JSONファイルからデータを取得する
-sub Class01_GetData {
-    my ($fname) = @_;
 
-    my $json_data = File::Slurp::read_file($fname);
+sub Form02_Func02_ReadJSONFile {
+    my ($FNAME) = @_;
+
+    my $json_data = File::Slurp::read_file($FNAME);
     my $json = JSON::decode_json($json_data);
 
     return ($json);
 }
-# JSONデータの中身を取得する
-sub Class01_GetJSONContents {
-    my ($json_parent) = @_;
-    my @output = ();
 
-    my $index = 1;
-    foreach my $pd_var (sort(keys(%{$json_parent}))) {
-        my $pd_value = $$json_parent{$pd_var};
-        my $val_ref = ref($pd_value);
-        # 入れ子になっている場合は再帰的に出力する
-        if ("$val_ref" eq "HASH") {
-            # print "var : ", encode('Shift_JIS', "$var"), "\n";
-            # $index++;
-            my @output2 = &Class01_GetJSONContents($pd_value);
-            for (my $i = 0; $i < scalar(@output2); $i++) {
-                $output2[$i] = sprintf("%02d，%s，%s", $index, $pd_var, $output2[$i]);
-            }
-            push(@output, @output2);
-        } else {
-           if ($pd_value =~ /^\d+$/) {
-                $pd_value = sprintf("%06d", $pd_value);
-            }
-            my $result = sprintf("%02d，%s，%s", $index, $pd_var, $pd_value);
-            push(@output, $result);
-        }
-        $index++;
+sub Convert_String {
+    my ($str1, $str2) = @_;
+    if ($str1 eq '') {
+        return (sprintf("%s", $str2));
+    } else {
+        return (sprintf("%s\t%s", $str1, $str2));
     }
-    return(@output);
 }
-sub Class02_SearchPDMonsterName {
-    my ($tbx) = @_;
-    
-    my $ref_string = $tbx;
-    
-    my %pd_map_num_name;
 
-    opendir(DIR, "$PD_DATADIR") or die "ERROR!!!";
-    my @dirlist = readdir(DIR);
-    foreach my $subdir (@dirlist) {
-        next if ($subdir =~ /^\.+$/);
-        if ($subdir =~ /^PDMonster\d+$/) {
-            # print "$subdir\n";
-            my $JSON_FNAME = sprintf("%s\\%s\\%s.json", $PD_DATADIR, $subdir, $subdir);
-            my $ret = &Class01_CheckFileExist($JSON_FNAME);
-            if ($ret == 0) {
-                # print "$JSON_FNAME\n";
-                my $JSON_DATA = &Class01_GetData($JSON_FNAME);
-                my @KEY_ARR = keys(%{$JSON_DATA});
-                next if (! grep {$_ eq 'name'} @KEY_ARR);
-                my $REF_NUM = $JSON_DATA->{number};
-                my $REF_NAME = $JSON_DATA->{name};
-                next if ($REF_NAME =~ /^$/);
-                # $REF_NAME = encode('Shift_JIS', $REF_NAME);
-                # print "NAME : $REF_NAME\n";
-                if ($REF_NAME =~ /$ref_string/)
-                {
-                    # my $linedata = sprintf("%06d\t%s", $REF_NUM, $REF_NAME);
-                    # push(@list, $linedata);
-                    printf("%06d\t", $REF_NUM);
-                    printf("%s\n", encode('Shift_JIS', $REF_NAME));
-                    # print "$linedata\n";
-                    $REF_NUM = sprintf("%06d", $REF_NUM);
-                    $pd_map_num_name{$REF_NUM} = $REF_NAME;
+sub Form02_Func03_GetJSONData {
+    my ($in_hash, $str) = @_;
+    my @key_list = keys(%{$in_hash});
+    my %output_hash;
+    my %output_hash2;
+    foreach my $key (@key_list) {
+        my $val = $in_hash->{$key};
+        my $val_ref = ref($val);
+        if ("$val_ref" eq 'HASH') {
+            %output_hash2 = &Form02_Func03_GetJSONData($val, &Convert_String($str, $key));
+            while (my ($key2, $val2) = each(%output_hash2)) {
+                # print "key2 : ", encode('Shift_JIS', $key2), "\t";
+                # print "val2 : ", encode('Shift_JIS', $val2), "\n";
+                next if (grep {$_ eq $key2} keys(%output_hash));
+                $output_hash{$key2} = $val2;
+            }
+        } else {
+            my $cvrt_key = &Convert_String($str, $key);
+            # print "key1 : ", encode('Shift_JIS', $cvrt_key), "\t";
+            # print "val1 : ", encode('Shift_JIS', $val), "\n";
+            next if (grep {$_ eq $cvrt_key} keys(%output_hash));
+            $output_hash{$cvrt_key} = $val;
+        }
+        # %output_hash = (%output_hash1, %output_hash2);
+    }
+    # while (my ($key, $val) = each(%output_hash)) {
+    #     print "key3 : ", encode('Shift_JIS', $key), "\t";
+    #     print "val3 : ", encode('Shift_JIS', $val), "\n";
+    # }
+    return (%output_hash);
+}
+
+sub Form02_Func04_DisplayGetItem {
+    my ($JSON_HASH) = @_;
+
+    my $IN_STR = "";
+
+    my $LBL_DAT;
+    my $LBL_STR;
+
+    my @item_list = ('number', 'name', 'rare', 'cost', 'assistance');
+    my %item_hash = ('number' => '番号',
+                     'name' => '名前',
+                     'rare' => 'レア度',
+                     'cost' => 'コスト',
+                     'assistance' => 'アシスト',
+                     'attribute' => '属性',
+                     'type' => 'タイプ',
+                     'skills' => 'スキル関連',
+                     'skill1' => 'モンスタースキル',
+                     'skill2' => 'リーダースキル',
+                     'parameters' => 'パラメータ',
+                     'awake' => '覚醒関連',
+                     'awake1' => '覚醒',
+                     'awake2' => '超覚醒',
+                     'killer' => 'キラー',
+                     );
+
+    # 画面の下地の作成
+    my $FRM02 = MainWindow->new();
+    $FRM02->optionAdd('*font' => ['', 14]);
+    $FRM02->title('JSONファイル取得結果');
+    my $FRM02_HEADER = $FRM02->Frame()->pack();
+    my $FRM02_TITLE = $FRM02_HEADER->Label(-text => 'JSONファイル取得結果')->pack();
+
+    my %JSON_HASH2 = &Form02_Func03_GetJSONData($JSON_HASH, 'PD');
+    my @JSON_KEY_ARR = keys(%JSON_HASH2);
+  
+    # 表示項目の設定
+    my $FRM02_DISPMAIN01 = $FRM02->Frame()->pack(-ipadx => 10, -ipady => 10, -fill => 'y');
+    my $FRM02_DISPMAIN02 = $FRM02->Frame()->pack(-ipadx => 10, -ipady => 10, -fill => 'y');
+
+    # 番号
+    $IN_STR = sprintf("PD\tnumber");
+    my $LBL_NUM_VAL = $JSON_HASH2{$IN_STR};
+    my $LF_NUMBER   = $FRM02_DISPMAIN01->Labelframe(-text => '番号')->grid(-row => 0, -column => 0, -ipadx => 5, -ipady => 5, -sticky => 'news');
+    $LF_NUMBER->configure(-labelanchor => 'nw');
+    my $PD_NUMBER_VAL = $LF_NUMBER->Label(-text => "$LBL_NUM_VAL",)->pack();
+
+    # 名前
+    $IN_STR = sprintf("PD\tname");
+    my $LF_NAME = $FRM02_DISPMAIN01->Labelframe(-text => '名前')->grid(-row => 0, -column => 1, -ipadx => 5, -ipady => 5, -columnspan => 2, -sticky => 'news');
+    $LF_NAME->configure(-labelanchor => 'nw');
+    my $LBL_NAME_VAL = $JSON_HASH2{$IN_STR};
+    my $PD_NAME_VAL = $LF_NAME->Label(-text => "$LBL_NAME_VAL", -width => 25,)->pack();
+
+    # レア
+    $IN_STR = sprintf("PD\trare");
+    my $LF_RARE = $FRM02_DISPMAIN01->Labelframe(-text => 'レア度')->grid(-row => 1, -column => 0, -ipadx => 5, -ipady => 5, -sticky => 'news');
+    $LF_RARE->configure(-labelanchor => 'nw');
+    my $LBL_RARE_VAL = $JSON_HASH2{$IN_STR};;
+    my $PD_RARE_VAL = $LF_RARE->Label(-text => "$LBL_RARE_VAL", -width => 25,)->pack();
+
+    # コスト
+    $IN_STR = sprintf("PD\tcost");
+    my $LF_COST = $FRM02_DISPMAIN01->Labelframe(-text => 'コスト')->grid(-row => 1, -column => 1, -ipadx => 5, -ipady => 5, -sticky => 'news');
+    $LF_COST->configure(-labelanchor => 'nw');
+    my $LBL_COST_VAL = $JSON_HASH2{$IN_STR};
+    my $PD_COST_VAL = $LF_COST->Label(-text => "$LBL_COST_VAL", -width => 25,)->pack();
+
+    # アシスト
+    $IN_STR = sprintf("PD\tassistance");
+    my $LF_ASSIST = $FRM02_DISPMAIN01->Labelframe(-text => 'アシスト')->grid(-row => 1, -column => 2, -ipadx => 5, -ipady => 5, -sticky => 'news');
+    $LF_ASSIST->configure(-labelanchor => 'nw');
+     my $LBL_Assist_VAL = $JSON_HASH2{$IN_STR};
+    if ($LBL_Assist_VAL == 0) {
+        $LBL_Assist_VAL = "不可";
+    } else {
+        $LBL_Assist_VAL = "可";
+    }
+    my $PD_Assist_VAL = $LF_ASSIST->Label(-text => "$LBL_Assist_VAL", -width => 25,)->pack();
+
+    # 属性
+    my $LF_ATTR = $FRM02_DISPMAIN01->Labelframe(-text => '属性')->grid(-row => 2, -column => 0, -ipadx => 5, -ipady => 5, -sticky => 'news');
+    $LF_ATTR->configure(-labelanchor => 'nw');
+    my @ATTR_LIST = ('火', '水', '木', '光', '闇');
+    foreach my $attr (@ATTR_LIST) {
+        $IN_STR = sprintf("PD\tattribute\t%s", $attr);
+        my $LBL_ATTR_VAL = $JSON_HASH2{$IN_STR};
+        if ($LBL_ATTR_VAL == 1) {
+            my $PD_ATTR_VAL = $LF_ATTR->Label(-text => "$attr")->pack();
+        }
+    }
+
+    # タイプ
+    my $LF_TYPE = $FRM02_DISPMAIN01->Labelframe(-text => 'タイプ')->grid(-row => 2, -column => 1, -ipadx => 5, -ipady => 5, -sticky => 'news');
+    $LF_TYPE->configure(-labelanchor => 'nw');
+    my $REF_STR = sprintf("PD\ttype");
+    foreach my $type_key (keys(%JSON_HASH2)) {
+        next if ($type_key !~ /$REF_STR\t(\S+)/);
+        my $REF_VAL = $JSON_HASH2{$type_key};
+        if ($REF_VAL == 1) {
+            my $PD_TYPE_VAL = $LF_TYPE->Label(-text => "$1")->pack();
+        }
+    }
+
+    # スキル
+    my $LF_SKILL1 = $FRM02_DISPMAIN01->Labelframe(-text => $item_hash{'skills'})->grid(-row => 3, -column => 0, -ipadx => 5, -ipady => 5, -columnspan => 2, -sticky => 'news');
+    $LF_SKILL1->configure(-labelanchor => 'nw');
+    my @skill_item_list = ('スキル', 'リーダースキル');
+    my @skill_contents_list = ('名前', 'タイプ', '内容');
+    my $s_row = 0;
+    foreach my $s_item (@skill_item_list) {
+        my $LF_SKILL2 = $LF_SKILL1->Labelframe(-text => $s_item,)->grid(-row => 0, -column => $s_row, -padx => 5, -pady => 5, -sticky => 'news');
+        $LF_SKILL2->configure(-labelanchor => 'nw');
+        foreach my $s_content (@skill_contents_list) {
+            $IN_STR = sprintf("PD\tskills\t%s\t%s", $s_item, $s_content);
+            if ($s_content eq 'タイプ') {
+                my $s_type_lf = $LF_SKILL2->Labelframe(-relief => 'flat')->grid(-row => 1, -column => 0, -padx => 0, -pady => 0, -columnspan => 3, -sticky => 'news');
+                my $s_type_cnt = 0;
+                my $s_row_strage = 6;
+                foreach my $s_key (@JSON_KEY_ARR) {
+                    if ($s_key =~ /$IN_STR\ttype\d+/) {
+                        my $s_type_r = $s_type_cnt / $s_row_strage;
+                        my $s_type_c = $s_type_cnt % $s_row_strage;
+                        my $PD_SKILL_TYPE = $s_type_lf->Label(-text => $JSON_HASH2{$s_key})->grid(-row => $s_type_r, -column => $s_type_c, -padx => 5, -pady => 5, -sticky => 'news');
+                        $s_type_cnt++;
+                    }
                 }
+            } else {
+                if ($s_content eq '名前') {
+                    my $PD_SKILL_NAME = $LF_SKILL2->Label(-text => $JSON_HASH2{$IN_STR}, -anchor => 'w')->grid(-row => 0, -column => 0, -ipadx => 5, -ipady => 5, -sticky => 'news');
+                } else {
+                    my $PD_SKILL_CONTENT = $LF_SKILL2->Label(-text => $JSON_HASH2{$IN_STR}, -anchor => 'w')->grid(-row => 2, -column => 0, -ipadx => 5, -ipady => 5, -sticky => 'news');
+                }
+            }
+        }
+        $s_row++;
+    }
+    
+    # 画像
+    # my $PD_IMG_FNAME = sprintf("%s\\PDMonster%06d\\PDMonster%06d.jpg", $PD_DATADIR, $JSON_HASH2{"PD\tnumber"}, $JSON_HASH2{"PD\tnumber"});
+    # my $PD_IMAGE = $FRM02_DISPMAIN02->Photo(-file => "$PD_IMG_FNAME")->pack();
+
+    # パラメータ
+    my @para_content_list = ('HP', '攻撃', '回復');
+    my @para_item_list = ('最大', 'プラス', '限界突破', '限界突破プラス');
+    my $LF_PARA = $FRM02_DISPMAIN02->Labelframe(-text => $item_hash{'parameters'})->grid(-row => 0, -column => 0, -padx => 5, -pady => 5, -sticky => 'news');
+    $LF_PARA->configure(-labelanchor => 'nw');
+    my $p_cnt = 0;
+    foreach my $p_content (@para_content_list) {
+        my $p_col = $p_cnt / 3;
+        my $PD_PARA_COL = $LF_PARA->Label(-text => $p_content)->grid(-row => 0, -column => $p_col + 1, -ipadx => 5, -pady => 5, -sticky => 'news');
+        foreach my $p_item (@para_item_list) {
+            my $p_row = $p_cnt % 4;
+            $IN_STR = sprintf("PD\tparameters\t%s\t%s", $p_content, $p_item);
+            my $PD_PARA_ROW = $LF_PARA->Label(-text => $p_item, -anchor => 'w')->grid(-row => $p_row+1, -column => 0, -ipadx => 5, -pady => 5, -sticky => 'news');
+            my $PD_PARA_VAL = $LF_PARA->Label(-text => $JSON_HASH2{$IN_STR})->grid(-row => $p_row + 1, -column => $p_col + 1, -ipadx => 5, -pady => 5, -sticky => 'news');
+            $p_cnt++;
+        }
+    }
+
+    # 覚醒
+    my @awake_content_list = ('awake1', 'awake2');
+    my $LF_AWAKE = $FRM02_DISPMAIN02->Labelframe(-text => $item_hash{'awake'})->grid(-row => 0, -column => 1, -padx => 5, -pady => 5, -columnspan => 2, -sticky => 'news');
+    $LF_AWAKE->configure(-labelanchor => 'nw');
+    my $awake_col = 0;
+    foreach my $awake_content (@awake_content_list) {
+        my $LF_AWAKE2 = $LF_AWAKE->Labelframe(-text => $item_hash{$awake_content})->grid(-row => 0, -column => $awake_col, -padx => 5, -pady => 5, -sticky => 'news');
+        $LF_AWAKE2->configure(-labelanchor => 'nw');
+        $IN_STR = sprintf("PD\t$awake_content");
+        my $awake_item_row = 0;
+        foreach my $awake_item (@JSON_KEY_ARR) {
+            if ($awake_item =~ /$IN_STR/) {
+                my $awake_cnt = $JSON_HASH2{$awake_item};
+                print encode('Shift_JIS', $awake_item), "\t";
+                print "$awake_cnt\n";
+                $awake_item =~ s/$IN_STR\t//;
+                my $PD_AWAKE_ITEM = $LF_AWAKE2->Label(-text => "$awake_item", -anchor => 'w')->grid(-row => $awake_item_row, -column => 0, -ipadx => 5, -ipady => 5);
+                my $PD_AWAKE_CNT = $LF_AWAKE2->Label(-text => "$awake_cnt", -anchor => 'w')->grid(-row => $awake_item_row, -column => 1, -ipadx => 5, -ipady => 5);
+                $awake_item_row++;
+            }
+        }
+        $awake_col++;
+    }
+
+    # キラー
+    my $LF_KILLER = $FRM02_DISPMAIN02->Labelframe(-text => $item_hash{'killer'})->grid(-row => 0, -column => 3, -padx => 5, -pady => 5, -sticky => 'news');
+    $LF_KILLER->configure(-labelanchor => 'nw');
+    $IN_STR = sprintf("PD\tkiller");
+    my $killer_item_row = 0;
+    foreach my $killer_item (@JSON_KEY_ARR) {
+        if ($killer_item =~ /$IN_STR/) {
+            my $killer_cnt = $JSON_HASH2{$killer_item};
+            print encode('Shift_JIS', $killer_item), "\t";
+            print "$killer_cnt\n";
+            $killer_item =~ s/$IN_STR\t//;
+            my $PD_KILLER_ITEM = $LF_KILLER->Label(-text => "$killer_item", -anchor => 'w')->grid(-row => $killer_item_row, -column => 0, -ipadx => 5, -ipady => 5);
+            my $PD_KILLER_CNT = $LF_KILLER->Label(-text => "$killer_cnt", -anchor => 'w')->grid(-row => $killer_item_row, -column => 1, -ipadx => 5, -ipady => 5);
+            $killer_item_row++;
+        }
+    }
+
+    # ボタンの設定
+    my $FRM02_SUB99 = $FRM02->Frame()->pack(-padx => 10, -pady => 10);
+    my $BTN01 = $FRM02_SUB99->Button(-text => '戻る', -command => [\&Form02_Func05_ReDisplay, $FRM02])->grid(-row => 0, -column => 0);
+    my $BTN02 = $FRM02_SUB99->Button(-text => '終了', -command => \&exit,)->grid(-row => 0, -column => 1);
+    MainLoop();
+}
+
+sub Form02_Func05_ReDisplay {
+    my ($self_frm) = @_;
+    # print "Check Start.\n";
+    $self_frm->withdraw;
+    if (!Exists($TOP)) {
+        # print "Not Exist\n";
+        # print encode('Shift_JIS', "メイン画面を開きます。"), "\n";
+        &MAIN;
+    }
+    else {
+        # print "Exists\n";
+        $TOP->deiconify;
+    }
+}
+sub Form03_Main {
+    my ($IN_KEYSTR) = @_;
+
+    # print encode('Shift_JIS', $IN_KEYSTR), "\n";
+    my %FRM03_LIST = &Form03_Func01_SearchJSONName($IN_KEYSTR);
+
+    # 検索結果を表示する
+    &Form03_Func02_DisplaySearchResult(\%FRM03_LIST);
+}
+
+sub Form03_Func01_SearchJSONName {
+    my ($IN_STR) = @_;
+
+    my $msg = "メッセージ用";
+    my %OUTPUT;
+
+    $msg = "検索開始";
+    print encode('Shift_JIS', $msg), "\n";
+    opendir(DIR,  "$PD_DATADIR") or die "Error!!";
+    my @LIST = readdir(DIR);
+    foreach my $sub (@LIST) {
+        next if ($sub =~ /^\.+$/);
+        if ($sub =~ /^PDMonster\d+$/) {
+            my $JSON_F = sprintf("%s\\%s\\%s.json", $PD_DATADIR, $sub, $sub);
+            next if (! -f $JSON_F);
+            my $JSON_HASH1 = &Form02_Func02_ReadJSONFile($JSON_F);
+
+            my @KEY_LIST = keys(%{$JSON_HASH1});
+            next if (! grep {$_ eq 'name'} @KEY_LIST);
+            
+            # my $PD_NUM = &Form02_Func03_GetJSONData($JSON_HASH, 'number');
+            # my $PD_NAME = &Form02_Func03_GetJSONData($JSON_HASH, 'name');
+            my $PD_NUM = $JSON_HASH1->{number};
+            my $PD_NAME = $JSON_HASH1->{name};
+
+            if ($PD_NAME =~ /$IN_STR/) {
+                $PD_NUM = sprintf("%06d", $PD_NUM);
+                # $PD_NAME = encode('Shift_JIS', $PD_NAME);
+                print "$PD_NUM\t";
+                print encode('Shift_JIS', $PD_NAME), "\n";
+                $OUTPUT{$PD_NUM} = $PD_NAME;
             }
         }
     }
     closedir(DIR);
+    
+    $msg = "検索終了";
+    print encode('Shift_JIS', $msg), "\n";
 
-    # 検索結果画面を表示
-    &Form03_DisplaySearchItem(\%pd_map_num_name);
+    return (%OUTPUT);
 }
-sub Form03_DisplaySearchItem {
-    my ($in_list_hash) = @_;
 
-    # 画面の下地の作成
-    my $FRM03 = MainWindow->new();
-    my $FRM03_TITLE = $FRM03->Label(-text => 'JSONファイル検索結果')->pack();
-    my $FRM03_ROW = $FRM03->Frame();
-    my $FRM03_FOOTER = $FRM03->Frame();
+sub Form03_Func02_DisplaySearchResult {
+    my ($IN_HASH) = @_;
 
-    # 検索結果をリスト表示
-    # # 列1：チェックボックス
-    # # 列2：番号
-    # # 列3：モンスター名
-    # my $list_sz = scalar(@key_list);
-    # my $FRM03_tbl01 = $FRM03->Table(-rows => $list_sz,
-    #                                 -columns => 3,
-    #                                 -scrollbars => 'se',
-    #                                 );
-    my @key_list = keys(%{$in_list_hash});
-    my $FRM03_TBL01 = $FRM03->Table(-rows => 10, -columns => 3, -scrollbars => 'e',);
-    my $row = 0;
-    foreach my $item_num (sort(@key_list)) {
-        # my $row_chkbox = $FRM03_ROW->Checkbutton()->grid(-row => $row, -column => 0);
-        # my $row_number = $FRM03_ROW->Label(-text => $item_num, -anchor => 'w')->grid(-row => $row, -column => 1);
-        # my $row_name   = $FRM03_ROW->Label(-text => $$in_list_hash{$item_num}, -anchor => 'w')->grid(-row => $row, -column => 2);
-        my $FRM03_CHK01 = $FRM03_TBL01->Checkbutton();
-        $FRM03_TBL01->put($row, 0, $FRM03_CHK01);
-        $FRM03_TBL01->put($row, 1, $item_num);
-        $FRM03_TBL01->put($row, 2, $$in_list_hash{$item_num});
-        $row++;
+    # 検索結果画面の生成
+    my $FRM03  = MainWindow->new();
+    $FRM03->optionAdd('*font' => ['', 14]);
+    $FRM03->title('キーワード検索結果');
+    my $FRM03_TITLE = $FRM03->Label(-text => 'キーワード検索結果')->pack(-fill => 'both');
+
+    # リストボックスの生成
+    my @KEY_LIST = sort(keys(%{$IN_HASH}));
+    my $LIST_SZ = scalar(@KEY_LIST);
+    my $FRM03_TBL01 = $FRM03->Table(-rows => 10, -columns => 3, -scrollbars => 'e',)->pack(-fill => 'x');
+    for (my $i = 0; $i < $LIST_SZ; $i++) {
+        my $PD_NUMBER  = $KEY_LIST[$i];
+        my $PD_NAME = $$IN_HASH{$PD_NUMBER};
+        my $FRM03_CHK01 = $FRM03_TBL01->Checkbutton(-onvalue => 1, -offvalue => 0, -command => [\&Form03_Func03_ReSearchJSONFile, $PD_NUMBER]);
+        my $FRM03_LBL01 = $FRM03_TBL01->Label(-text => "$PD_NUMBER")->pack(-side => 'left');
+        my $FRM03_LBL02 = $FRM03_TBL01->Label(-text => "$PD_NAME", -anchor => 'w')->pack();
+        $FRM03_TBL01->put($i, 0, $FRM03_CHK01);
+        $FRM03_TBL01->put($i, 1, $FRM03_LBL01);
+        $FRM03_TBL01->put($i, 2, $FRM03_LBL02);
     }
-    # $FRM03_tbl01->pack(-fill => 'both', -expand => 1,);
-    # my $FRM03_SEARCH = $FRM03_FOOTER->Button(-text => '検索',)->pack(-side => 'left');
-    # my $FRM03_EXIT = $FRM03_FOOTER->Button(-text => '終了', -command => \&exit)->pack(-side => 'left');
 
-    # $FRM03->pack();
-    # $FRM03_ROW->pack(-fill => 'both');
-    $FRM03_TBL01->pack(-fill => 'both');
-    # $FRM03_FOOTER->pack(-fill => 'both');
-
-    my $FRM03_SEARCH = $FRM03->Button(-text => '検索',)->pack(-side => 'left');
-    my $FRM03_EXIT = $FRM03->Button(-text => '終了', -command => \&exit)->pack(-side => 'left');
-
+    # ボタンの設定
+    my $FRM03_SUB99 = $FRM03->Frame()->pack();
+    # my $BTN01 = $FRM03_SUB99->Button(-text => '検索', -command => [\&Form03_Func03_ReSearchJSONFile, $FRM03_TBL01])->pack(-side => 'left');
+    my $BTN02 = $FRM03_SUB99->Button(-text => '終了', -command => \&exit,)->pack(-side => 'left');
     MainLoop();
 }
-# メインウィンドウ
-my $TOP = MainWindow->new();
-my $TOP_TITLE = $TOP->Label(-text => 'JSONデータ')->pack();
-my $LBL01 = $TOP->Label(-text => '番号を入力して下さい。')->pack();
-my $TBX01 = $TOP->Entry(-text => '')->pack();
-my $LBL02 = $TOP->Label(-text => '名前を入力して下さい。')->pack();
-my $TBX02 = $TOP->Entry(-text => '')->pack();
-my $FRM01_F0 = $TOP->Frame();
-my $BTN01 = $FRM01_F0->Button(-text => '検索', -command => [\&Form01_CheckInput, $TBX01, $TBX02])->pack(-side => 'left');
-my $BTN02 = $FRM01_F0->Button(-text => '終了', -command => \&exit)->pack(-side => 'left');
-$FRM01_F0->pack();
-MainLoop();
 
+sub Form03_Func03_ReSearchJSONFile {
+    my ($IN_NUMBER) = @_;
+
+    $IN_NUMBER = sprintf("%d", $IN_NUMBER);
+
+    # JSONファイル検索処理を実行
+    &Form02_Main($IN_NUMBER);
+}
