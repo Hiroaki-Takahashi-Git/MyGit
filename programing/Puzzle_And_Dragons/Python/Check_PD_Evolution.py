@@ -154,7 +154,7 @@ def mk_evo_dot(ROOT_DIR, IN_NUM, IN_ARR):
 			# print(linedata1[0])
 			# pd_node = mk_node_string(linedata1[0], linedata1[1])
 			# G.node(linedata1[1], shape="doublecircle", color="red")
-			G.node(com_uniq_arr[i2], shape="doublecircle", color="red")
+			G.node(com_uniq_arr[i2], shape="box", color="red")
 		else:
 			# G.node(linedata1[1], shape="box")
 			G.node(com_uniq_arr[i2], shape="box")
