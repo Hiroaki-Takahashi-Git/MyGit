@@ -89,7 +89,7 @@ sub Form03_Func03_DisplaySearchResult {
         $FRM03_TBL01->put($i, 1, $FRM03_LBL01);
         $FRM03_TBL01->put($i, 2, $FRM03_LBL02);
     }
-    &Add_Form($FRM03);
+    # &Add_Form($FRM03);
 
     # ボタンの設定
     my $FRM03_SUB99 = $FRM03->Frame()->pack(-padx => 10, -pady => 10);

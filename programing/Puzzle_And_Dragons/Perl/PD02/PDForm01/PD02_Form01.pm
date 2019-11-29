@@ -7,6 +7,7 @@ use Encode qw(decode encode);
 require '.\PDDefine\PD02_Define.pm';
 require '.\PDForm02\PD02_Form02.pm';
 require '.\PDForm03\PD02_Form03.pm';
+require '.\PDForm05\PD02_Form05.pm';
 
 sub Form01_Func01_Main {
 
@@ -23,7 +24,8 @@ sub Form01_Func01_Main {
     my $TBX02 = $FRM01_F0->Entry(-text => '', -width => 30, )->pack(-padx => 10, -pady => 10);
     my $FRM01_F1 = $Form01->Frame();
     my $BTN01 = $FRM01_F1->Button(-text => '検索', -command => [\&Form01_Func02_CheckInput, $Form01, $TBX01, $TBX02],)->pack(-side => 'left', -padx => 10, -pady => 10);
-    my $BTN02 = $FRM01_F1->Button(-text => '終了', -command => \&exit,)->pack(-side => 'left', -padx => 10, -pady => 10);
+    my $BTN02 = $FRM01_F1->Button(-text => '更新', -command => [\&Form05_Func01_Main])->pack(-side => 'left', -padx => 10, -pady => 10);
+    my $BTN99 = $FRM01_F1->Button(-text => '終了', -command => \&exit,)->pack(-side => 'left', -padx => 10, -pady => 10);
     $FRM01_F0->pack();
     $FRM01_F1->pack();
 

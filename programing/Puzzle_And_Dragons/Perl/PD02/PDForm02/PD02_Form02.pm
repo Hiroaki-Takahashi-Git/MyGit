@@ -11,6 +11,7 @@ use File::Path 'mkpath';
 
 require '.\PDDefine\PD02_Define.pm';
 require '.\PDForm01\PD02_Form01.pm';
+require '.\PDForm04\PD02_Form04.pm';
 
 # my @Frm02_Arr = ();
 
@@ -324,6 +325,7 @@ sub Form02_Func05_DisplayGetItem {
     my $FRM02_SUB99 = $FRM02->Frame()->pack(-padx => 10, -pady => 10);
     my $BTN01 = $FRM02_SUB99->Button(-text => '戻る', -command => [\&Form02_Func06_ReDisplay],)->grid(-row => 0, -column => 0);
     my $BTN02 = $FRM02_SUB99->Button(-text => '進化', -command => [\&Form02_Func07_SearchEvolution, $LBL_NUM_VAL, $LBL_NAME_VAL])->grid(-row => 0, -column => 1);
+    my $BTN03 = $FRM02_SUB99->Button(-text => '分析', -command => [\&Form04_Func01_Main, $LBL_NUM_VAL, $LBL_NAME_VAL])->grid(-row => 0, -column => 2);
     my $BTNE = $FRM02_SUB99->Button(-text => '終了', -command => \&exit,)->grid(-row => 0, -column => 9);
     MainLoop();
 
