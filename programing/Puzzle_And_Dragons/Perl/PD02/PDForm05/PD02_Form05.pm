@@ -28,7 +28,7 @@ sub Form05_Func01_Main {
     my $BTN_BACKTOPFORM = $FRM05_F1->Button(-text => "戻る", -command => [\&Form01_Func01_Main])->pack(-side => 'left', -padx => 10, -pady => 10);
 
     $FRM05_F0->pack();
-    $FRM05_F1->pack();
+    $FRM05_F1->pack(-padx => 10, -pady => 10);
 
     &Add_Form($FRM05);
 
