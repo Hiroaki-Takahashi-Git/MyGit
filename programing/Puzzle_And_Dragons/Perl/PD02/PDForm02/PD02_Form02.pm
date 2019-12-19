@@ -67,15 +67,6 @@ sub Form02_Func03_ReadJSONFile {
     return ($json);
 }
 
-sub Convert_String {
-    my ($str1, $str2) = @_;
-    if ($str1 eq '') {
-        return (sprintf("%s", $str2));
-    } else {
-        return (sprintf("%s\t%s", $str1, $str2));
-    }
-}
-
 sub Form02_Func04_GetJSONData {
     my ($in_hash, $str) = @_;
     my @key_list = keys(%{$in_hash});
@@ -138,8 +129,8 @@ sub Form02_Func05_DisplayGetItem {
     my @JSON_KEY_ARR = keys(%JSON_HASH2);
   
     # 表示項目の設定
-    my $FRM02_DISPMAIN01 = $FRM02->Frame()->grid(-row => 0, -column => 0)->pack(-padx => 10, -pady => 10);
-    my $FRM02_DISPMAIN02 = $FRM02->Frame()->grid(-row => 0, -column => 1)->pack(-padx => 10, -pady => 10);
+    my $FRM02_DISPMAIN01 = $FRM02->Frame()->pack(-padx => 10, -pady => 10);
+    my $FRM02_DISPMAIN02 = $FRM02->Frame()->pack(-padx => 10, -pady => 10);
 
     # 番号
     $IN_STR = sprintf("PD\tnumber");
@@ -323,10 +314,10 @@ sub Form02_Func05_DisplayGetItem {
 
     # ボタンの設定
     my $FRM02_SUB99 = $FRM02->Frame()->pack(-padx => 10, -pady => 10);
-    my $BTN01 = $FRM02_SUB99->Button(-text => '戻る', -command => [\&Form02_Func06_ReDisplay],)->grid(-row => 0, -column => 0);
-    my $BTN02 = $FRM02_SUB99->Button(-text => '進化', -command => [\&Form02_Func07_SearchEvolution, $LBL_NUM_VAL, $LBL_NAME_VAL])->grid(-row => 0, -column => 1);
-    my $BTN03 = $FRM02_SUB99->Button(-text => '分析', -command => [\&Form04_Func01_Main, $LBL_NUM_VAL, $LBL_NAME_VAL])->grid(-row => 0, -column => 2);
-    my $BTNE = $FRM02_SUB99->Button(-text => '終了', -command => \&exit,)->grid(-row => 0, -column => 9);
+    my $BTN01 = $FRM02_SUB99->Button(-text => '戻る', -command => [\&Form02_Func06_ReDisplay],)->grid(-row => 0, -column => 0, -padx => 10, -pady => 10);
+    my $BTN02 = $FRM02_SUB99->Button(-text => '進化', -command => [\&Form02_Func07_SearchEvolution, $LBL_NUM_VAL, $LBL_NAME_VAL])->grid(-row => 0, -column => 1, -padx => 10, -pady => 10);
+    my $BTN03 = $FRM02_SUB99->Button(-text => '分析', -command => [\&Form04_Func01_Main, $LBL_NUM_VAL, $LBL_NAME_VAL])->grid(-row => 0, -column => 2, -padx => 10, -pady => 10);
+    my $BTNE = $FRM02_SUB99->Button(-text => '終了', -command => \&exit,)->grid(-row => 0, -column => 9, -padx => 10, -pady => 10);
     MainLoop();
 
     &Add_Form($FRM02);

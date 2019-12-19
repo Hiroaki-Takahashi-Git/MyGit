@@ -49,4 +49,13 @@ sub Init_Form {
         }
     }
 }
+
+sub Convert_String {
+    my ($str1, $str2) = @_;
+    if ($str1 eq '') {
+        return (sprintf("%s", $str2));
+    } else {
+        return (sprintf("%s\t%s", $str1, $str2));
+    }
+}
 1;

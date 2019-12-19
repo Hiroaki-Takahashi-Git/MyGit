@@ -19,16 +19,16 @@ sub Form05_Func01_Main {
     my $FRM05_F0 = $FRM05->Frame();
     my $FRM05_F1 = $FRM05->Frame();
     
-    my $LBL_LABEL_START = $FRM05_F0->Label(-text => "開始", -anchor => 'w')->grid(-row => 0, -column => 0, -ipadx => 10, -ipady => 10);
-    my $LBL_INPUT_START = $FRM05_F0->Entry(-text => "",)->grid(-row => 0, -column => 1, -ipadx => 10, -ipady => 10);
-    my $LBL_LABEL_STOP  = $FRM05_F0->Label(-text => "終了", -anchor => 'w')->grid(-row => 1, -column => 0, -ipadx => 10, -ipady => 10);
-    my $LBL_INPUT_STOP  = $FRM05_F0->Entry(-text => "",)->grid(-row => 1, -column => 1, -ipadx => 10, -ipady => 10);
+    my $LBL_LABEL_START = $FRM05_F0->Label(-text => "開始", -anchor => 'w')->grid(-row => 0, -column => 0, -padx => 10, -pady => 10);
+    my $LBL_INPUT_START = $FRM05_F0->Entry(-text => "",)->grid(-row => 0, -column => 1, -padx => 10, -pady => 10);
+    my $LBL_LABEL_STOP  = $FRM05_F0->Label(-text => "終了", -anchor => 'w')->grid(-row => 1, -column => 0, -padx => 10, -pady => 10);
+    my $LBL_INPUT_STOP  = $FRM05_F0->Entry(-text => "",)->grid(-row => 1, -column => 1, -padx => 10, -pady => 10);
 
     my $BTN_GETJSONDATA = $FRM05_F1->Button(-text => "取得", -command => [\&Form05_Func02_GetJSONData, $LBL_INPUT_START, $LBL_INPUT_STOP])->pack(-side => 'left', -padx => 10, -pady => 10);
     my $BTN_BACKTOPFORM = $FRM05_F1->Button(-text => "戻る", -command => [\&Form01_Func01_Main])->pack(-side => 'left', -padx => 10, -pady => 10);
 
     $FRM05_F0->pack();
-    $FRM05_F1->pack(-padx => 10, -pady => 10);
+    $FRM05_F1->pack();
 
     &Add_Form($FRM05);
 
