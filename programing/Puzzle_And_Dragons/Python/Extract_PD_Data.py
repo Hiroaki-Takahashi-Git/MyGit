@@ -255,11 +255,12 @@ def main(NUMBER, FNAME):
 		IMG_NAME = FNAME.replace('tsv', 'jpg')
 		# print(IMG_NAME)
 		IMG_PATH = PDM_IMAGE.PD_GET_IMAGE(URL)
-		PD_DATA_CL["img_url"] = IMG_PATH
-		REQ = request.urlopen(IMG_PATH)
-		f = open(IMG_NAME, "wb")
-		f.write(REQ.read())
-		f.close()
+		if IMG_PATH != "NO_IMAGE_URL":
+			PD_DATA_CL["img_url"] = IMG_PATH
+			REQ = request.urlopen(IMG_PATH)
+			f = open(IMG_NAME, "wb")
+			f.write(REQ.read())
+			f.close()
 
 	else:
 		ERROR_TBL = ttb.Texttable()
