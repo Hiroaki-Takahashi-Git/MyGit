@@ -18,9 +18,7 @@ require '.\PDForm04\PD02_Form04.pm';
 sub Form02_Func01_Main {
     my ($IN_NUMBER) = @_;
 
-    my $JSON_FNAME = sprintf("%s\\PDMonster%06d\\PDMonster%06d.json",   &Define_Item('PD_DATADIR'),
-                                                                        $IN_NUMBER,
-                                                                        $IN_NUMBER);
+    my $JSON_FNAME = sprintf("%s\\PDMonster%06d\\PDMonster%06d.json",   &Define_Item('PD_DATADIR'), $IN_NUMBER, $IN_NUMBER);
 
     # JSONファイルのチェック
     my $ret = &Form02_Func02_CheckFileExist($JSON_FNAME);
@@ -61,10 +59,10 @@ sub Form02_Func02_CheckFileExist {
 sub Form02_Func03_ReadJSONFile {
     my ($FNAME) = @_;
 
-    my $json_data = File::Slurp::read_file($FNAME);
-    my $json = JSON::decode_json($json_data);
+    my $json_read = File::Slurp::read_file($FNAME);
+    my $json_data = JSON::decode_json($json_read);
 
-    return ($json);
+    return ($json_data);
 }
 
 sub Form02_Func04_GetJSONData {
@@ -135,34 +133,34 @@ sub Form02_Func05_DisplayGetItem {
     # 番号
     $IN_STR = sprintf("PD\tnumber");
     my $LBL_NUM_VAL = $JSON_HASH2{$IN_STR};
-    my $LF_NUMBER   = $FRM02_DISPMAIN01->Labelframe(-text => '番号',)->grid(-row => 0, -column => 0, -ipadx => 5, -ipady => 5, -columnspan => 1, -sticky => 'news');
+    my $LF_NUMBER   = $FRM02_DISPMAIN01->Labelframe(-text => '番号',)->grid(-row => 0, -column => 0, -padx => 5, -pady => 5, -columnspan => 1, -sticky => 'news');
     $LF_NUMBER->configure(-labelanchor => 'nw');
     my $PD_NUMBER_VAL = $LF_NUMBER->Label(-text => "$LBL_NUM_VAL",)->pack();
 
     # 名前
     $IN_STR = sprintf("PD\tname");
-    my $LF_NAME = $FRM02_DISPMAIN01->Labelframe(-text => '名前', -width => 50, -height => 25)->grid(-row => 0, -column => 1, -ipadx => 5, -ipady => 5, -columnspan => 3, -sticky => 'news');
+    my $LF_NAME = $FRM02_DISPMAIN01->Labelframe(-text => '名前', -width => 50, -height => 25)->grid(-row => 0, -column => 1, -padx => 5, -pady => 5, -columnspan => 3, -sticky => 'news');
     $LF_NAME->configure(-labelanchor => 'nw');
     my $LBL_NAME_VAL = $JSON_HASH2{$IN_STR};
     my $PD_NAME_VAL = $LF_NAME->Label(-text => "$LBL_NAME_VAL",)->pack();
 
     # レア
     $IN_STR = sprintf("PD\trare");
-    my $LF_RARE = $FRM02_DISPMAIN01->Labelframe(-text => 'レア度', -width => 50, -height => 25)->grid(-row => 1, -column => 0, -ipadx => 5, -ipady => 5, -sticky => 'news');
+    my $LF_RARE = $FRM02_DISPMAIN01->Labelframe(-text => 'レア度', -width => 50, -height => 25)->grid(-row => 1, -column => 0, -padx => 5, -pady => 5, -sticky => 'news');
     $LF_RARE->configure(-labelanchor => 'nw');
     my $LBL_RARE_VAL = $JSON_HASH2{$IN_STR};;
     my $PD_RARE_VAL = $LF_RARE->Label(-text => "$LBL_RARE_VAL", -width => 25,)->pack();
 
     # コスト
     $IN_STR = sprintf("PD\tcost");
-    my $LF_COST = $FRM02_DISPMAIN01->Labelframe(-text => 'コスト', -width => 50, -height => 25)->grid(-row => 2, -column => 0, -ipadx => 5, -ipady => 5, -sticky => 'news');
+    my $LF_COST = $FRM02_DISPMAIN01->Labelframe(-text => 'コスト', -width => 50, -height => 25)->grid(-row => 2, -column => 0, -padx => 5, -pady => 5, -sticky => 'news');
     $LF_COST->configure(-labelanchor => 'nw');
     my $LBL_COST_VAL = $JSON_HASH2{$IN_STR};
     my $PD_COST_VAL = $LF_COST->Label(-text => "$LBL_COST_VAL", -width => 25,)->pack();
 
     # アシスト
     $IN_STR = sprintf("PD\tassistance");
-    my $LF_ASSIST = $FRM02_DISPMAIN01->Labelframe(-text => 'アシスト', -width => 50, -height => 25)->grid(-row => 1, -column => 3, -ipadx => 5, -ipady => 5, -sticky => 'news');
+    my $LF_ASSIST = $FRM02_DISPMAIN01->Labelframe(-text => 'アシスト', -width => 50, -height => 25)->grid(-row => 1, -column => 3, -padx => 5, -pady => 5, -sticky => 'news');
     $LF_ASSIST->configure(-labelanchor => 'nw');
      my $LBL_Assist_VAL = $JSON_HASH2{$IN_STR};
     if ($LBL_Assist_VAL == 0) {
@@ -173,7 +171,7 @@ sub Form02_Func05_DisplayGetItem {
     my $PD_Assist_VAL = $LF_ASSIST->Label(-text => "$LBL_Assist_VAL", -width => 25,)->pack();
 
     # 属性
-    my $LF_ATTR = $FRM02_DISPMAIN01->Labelframe(-text => '属性', -width => 50, -height => 25)->grid(-row => 1, -column => 1, -ipadx => 5, -ipady => 5, -rowspan => 2, -sticky => 'news');
+    my $LF_ATTR = $FRM02_DISPMAIN01->Labelframe(-text => '属性', -width => 50, -height => 25)->grid(-row => 1, -column => 1, -padx => 5, -pady => 5, -rowspan => 2, -sticky => 'news');
     $LF_ATTR->configure(-labelanchor => 'nw');
     my @ATTR_LIST = ('火', '水', '木', '光', '闇');
     foreach my $attr (@ATTR_LIST) {
@@ -185,7 +183,7 @@ sub Form02_Func05_DisplayGetItem {
     }
 
     # タイプ
-    my $LF_TYPE = $FRM02_DISPMAIN01->Labelframe(-text => 'タイプ')->grid(-row => 1, -column => 2, -ipadx => 5, -ipady => 5, -rowspan => 2, -sticky => 'news');
+    my $LF_TYPE = $FRM02_DISPMAIN01->Labelframe(-text => 'タイプ')->grid(-row => 1, -column => 2, -padx => 5, -pady => 5, -rowspan => 2, -sticky => 'news');
     $LF_TYPE->configure(-labelanchor => 'nw');
     my $REF_STR = sprintf("PD\ttype");
     foreach my $type_key (keys(%JSON_HASH2)) {
@@ -197,7 +195,7 @@ sub Form02_Func05_DisplayGetItem {
     }
 
     # スキル
-    my $LF_SKILL1 = $FRM02_DISPMAIN01->Labelframe(-text => $item_hash{'skills'})->grid(-row => 4, -column => 0, -ipadx => 5, -ipady => 5, -rowspan => 2, -columnspan => 4, -sticky => 'news');
+    my $LF_SKILL1 = $FRM02_DISPMAIN01->Labelframe(-text => $item_hash{'skills'})->grid(-row => 4, -column => 0, -padx => 5, -pady => 5, -rowspan => 2, -columnspan => 4, -sticky => 'news');
     $LF_SKILL1->configure(-labelanchor => 'nw');
     my @skill_item_list = ('スキル', 'リーダースキル');
     my @skill_contents_list = ('名前', 'タイプ', '内容');
@@ -246,7 +244,7 @@ sub Form02_Func05_DisplayGetItem {
                     my @PD_STR_ARR = split(/。/, $PD_CONTENT_VAL);
                     for (my $i = 0; $i < scalar(@PD_STR_ARR); $i++) {
                         my $PD_STRING = sprintf("%s。", $PD_STR_ARR[$i]);
-                        my $PD_SKILL_CONTENT = $LF_S_FRM->Label(-text => $PD_STRING, -anchor => 'w')->grid(-row => $i, -column => 0, -ipadx => 5, -ipady => 5, -rowspan => 1, -columnspan => 3, -sticky => 'news');
+                        my $PD_SKILL_CONTENT = $LF_S_FRM->Label(-text => $PD_STRING, -anchor => 'w')->grid(-row => $i, -column => 0, -padx => 5, -pady => 5, -rowspan => 1, -columnspan => 3, -sticky => 'news');
                     }
                 } else {
                     $LF_S_FRM->Label(-text => "NODATA", -anchor => 'w')->pack(-padx => 5, -pady => 5);
@@ -265,12 +263,12 @@ sub Form02_Func05_DisplayGetItem {
     my $p_cnt = 0;
     foreach my $p_content (@para_content_list) {
         my $p_col = $p_cnt / 3;
-        my $PD_PARA_COL = $LF_PARA->Label(-text => $p_content)->grid(-row => 0, -column => $p_col + 1, -ipadx => 5, -pady => 5, -sticky => 'news');
+        my $PD_PARA_COL = $LF_PARA->Label(-text => $p_content)->grid(-row => 0, -column => $p_col + 1, -padx => 5, -pady => 5, -sticky => 'news');
         foreach my $p_item (@para_item_list) {
             my $p_row = $p_cnt % 4;
             $IN_STR = sprintf("PD\tparameters\t%s\t%s", $p_content, $p_item);
-            my $PD_PARA_ROW = $LF_PARA->Label(-text => $p_item, -anchor => 'e')->grid(-row => $p_row+1, -column => 0, -ipadx => 5, -pady => 5, -sticky => 'news');
-            my $PD_PARA_VAL = $LF_PARA->Label(-text => $JSON_HASH2{$IN_STR})->grid(-row => $p_row + 1, -column => $p_col + 1, -ipadx => 5, -pady => 5, -sticky => 'news');
+            my $PD_PARA_ROW = $LF_PARA->Label(-text => $p_item, -anchor => 'e')->grid(-row => $p_row+1, -column => 0, -padx => 5, -pady => 5, -sticky => 'news');
+            my $PD_PARA_VAL = $LF_PARA->Label(-text => $JSON_HASH2{$IN_STR})->grid(-row => $p_row + 1, -column => $p_col + 1, -padx => 5, -pady => 5, -sticky => 'news');
             $p_cnt++;
         }
     }
@@ -289,8 +287,8 @@ sub Form02_Func05_DisplayGetItem {
             if ($awake_item =~ /$IN_STR/) {
                 my $awake_cnt = $JSON_HASH2{$awake_item};
                 $awake_item =~ s/$IN_STR\t//;
-                my $PD_AWAKE_ITEM = $LF_AWAKE2->Label(-text => "$awake_item", -anchor => 'w')->grid(-row => $awake_item_row, -column => 0, -ipadx => 5, -ipady => 5);
-                my $PD_AWAKE_CNT = $LF_AWAKE2->Label(-text => "$awake_cnt", -anchor => 'w')->grid(-row => $awake_item_row, -column => 1, -ipadx => 5, -ipady => 5);
+                my $PD_AWAKE_ITEM = $LF_AWAKE2->Label(-text => "$awake_item", -anchor => 'w')->grid(-row => $awake_item_row, -column => 0, -padx => 5, -pady => 5);
+                my $PD_AWAKE_CNT = $LF_AWAKE2->Label(-text => "$awake_cnt", -anchor => 'w')->grid(-row => $awake_item_row, -column => 1, -padx => 5, -pady => 5);
                 $awake_item_row++;
             }
         }
@@ -306,8 +304,8 @@ sub Form02_Func05_DisplayGetItem {
         if ($killer_item =~ /$IN_STR/) {
             my $killer_cnt = $JSON_HASH2{$killer_item};
             $killer_item =~ s/$IN_STR\t//;
-            my $PD_KILLER_ITEM = $LF_KILLER->Label(-text => "$killer_item", -anchor => 'w')->grid(-row => $killer_item_row, -column => 0, -ipadx => 5, -ipady => 5);
-            my $PD_KILLER_CNT = $LF_KILLER->Label(-text => "$killer_cnt", -anchor => 'w')->grid(-row => $killer_item_row, -column => 1, -ipadx => 5, -ipady => 5);
+            my $PD_KILLER_ITEM = $LF_KILLER->Label(-text => "$killer_item", -anchor => 'w')->grid(-row => $killer_item_row, -column => 0, -padx => 5, -pady => 5);
+            my $PD_KILLER_CNT = $LF_KILLER->Label(-text => "$killer_cnt", -anchor => 'w')->grid(-row => $killer_item_row, -column => 1, -padx => 5, -pady => 5);
             $killer_item_row++;
         }
     }
@@ -317,6 +315,7 @@ sub Form02_Func05_DisplayGetItem {
     my $BTN01 = $FRM02_SUB99->Button(-text => '戻る', -command => [\&Form02_Func06_ReDisplay],)->grid(-row => 0, -column => 0, -padx => 10, -pady => 10);
     my $BTN02 = $FRM02_SUB99->Button(-text => '進化', -command => [\&Form02_Func07_SearchEvolution, $LBL_NUM_VAL, $LBL_NAME_VAL])->grid(-row => 0, -column => 1, -padx => 10, -pady => 10);
     my $BTN03 = $FRM02_SUB99->Button(-text => '分析', -command => [\&Form04_Func01_Main, $LBL_NUM_VAL, $LBL_NAME_VAL])->grid(-row => 0, -column => 2, -padx => 10, -pady => 10);
+    my $BTN04 = $FRM02_SUB99->Button(-text => 'CSV出力', -command => [\&Form02_Func09_MakeCSVFile, $LBL_NUM_VAL],)->grid(-row => 0, -column => 3, -padx => 10, -pady => 10);
     my $BTNE = $FRM02_SUB99->Button(-text => '終了', -command => \&exit,)->grid(-row => 0, -column => 9, -padx => 10, -pady => 10);
     MainLoop();
 
@@ -400,4 +399,37 @@ sub Form02_Func08_DisplayImage {
     }
 }
 
+sub Form02_Func09_MakeCSVFile {
+    my ($IN_NUMBER) = @_;
+
+    printf("Number : %6d\n", $IN_NUMBER);
+
+    my $ORG_JSON_FNAME = sprintf("%s\\PDMonster%06d\\PDMonster%06d.json",   &Define_Item('PD_DATADIR'), $IN_NUMBER, $IN_NUMBER);
+    my $DST_CSV_FNAME = sprintf("%s\\PDMonster%06d\\PDMonster%06d.csv",   &Define_Item('PD_DATADIR'), $IN_NUMBER, $IN_NUMBER);
+
+    my $isExist = &Form02_Func02_CheckFileExist($ORG_JSON_FNAME);
+
+    if ($isExist == 0) {
+        # JSONファイルの読み取り
+        my $JSON_HASH1 = &Form02_Func03_ReadJSONFile($ORG_JSON_FNAME);
+
+        # JSONデータの取得
+        my %JSON_HASH2 = &Form02_Func04_GetJSONData($JSON_HASH1, 'PD');
+        my @JSON_KEY_ARR = keys(%JSON_HASH2);
+
+        # CSVファイルに出力
+        print encode('Shift_JIS', "CSV出力開始"), "\n";
+        open(CSV, "> $DST_CSV_FNAME") or die "Error!!";
+        foreach my $test_key (sort(@JSON_KEY_ARR)) {
+            my $test_val = $JSON_HASH2{$test_key};
+            if ($test_key =~ /^PD/) {
+                $test_key =~ s/\t/\,/g;
+                print CSV encode('Shift_JIS', $test_key), ",";
+                print CSV encode('Shift_JIS', $test_val), "\n";
+            }
+        }
+        close(CSV);
+        print encode('Shift_JIS', "CSV出力終了"), "\n";
+    }
+}
 1;

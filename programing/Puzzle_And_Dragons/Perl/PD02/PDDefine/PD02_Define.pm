@@ -11,6 +11,8 @@ my $TOOL_PYTHON    = sprintf("%s\\Python", $PD_TOOLDIR);
 
 my @FRM_ARRAY = ();
 
+my $TEST_VAR = "test";
+
 sub Define_Item {
     my ($IN_STRING) = @_;
     if ($IN_STRING eq 'PD_ROOTDIR') {
@@ -41,7 +43,6 @@ sub Add_Form {
 }
 
 sub Init_Form {
-    
     if (scalar(@FRM_ARRAY) > 0) {
         foreach my $FRM (@FRM_ARRAY) {
             # print "FORM\t$FRM\n";
