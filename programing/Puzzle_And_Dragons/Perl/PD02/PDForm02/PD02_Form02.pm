@@ -355,9 +355,11 @@ sub Form02_Func07_SearchEvolution {
 
     # ファイルが存在するか確認
     my $ret = &Form02_Func02_CheckFileExist($PD_IMG_FNAME);
-    if ($ret >= 0) {
+    if ($ret != 0) {
         open(COM, "|python $PY_MODULE $PD_PRODDIR $IN_NUMBER") or die "Error!!";
         close(COM);
+    } else {
+        print encode('Shift_JIS', "既にファイルは存在しています。\n");
     }
 
     print encode('Shift_JIS', "検索終了"), "\n";
