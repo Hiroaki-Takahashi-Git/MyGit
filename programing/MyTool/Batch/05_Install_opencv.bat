@@ -12,6 +12,9 @@ SET OPENCV_ROOT=%DEVELOPDIR%\OpenCV
 SET OPENCV_BASE=%OPENCV_ROOT%\opencv_base
 SET OPENCV_EXTRA=%OPENCV_ROOT%\opencv_extra\opencv_contrib
 
+rem	SET VS_VERSION = "Visual Studio 15 2017 Win64"
+rem	SET VS_VERSION = "Visual Studio 16 2019"
+
 SET OPENCV_BUILD=%OPENCV_BASE%\opencv_build
 SET OPENCV_INSTALL=%OPENCV_BASE%\opencv_install
 

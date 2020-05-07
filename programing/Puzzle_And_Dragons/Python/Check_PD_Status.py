@@ -29,8 +29,8 @@ def PD_GET_STATUS(IN_TAG):
 	ROWS_SIZ = len(ROWS_ALL)
 	COLS_SIZ = int(CELL_SIZ / ROWS_SIZ)
 	CELL_ARR = []
-	COL_ARR2 = []
-	ROW_ARR2 = []
+	# COL_ARR2 = []
+	# ROW_ARR2 = []
 	CELL_ARR2 = []
 	for CELL in CELL_ALL:
 		ELEM_STR = CELL.get_text(strip=True)
@@ -50,7 +50,7 @@ def main(NUMBER):
     pass
     PD_HTTP = module03.SET_PDNUM(NUMBER)
     PD_URL = module01.GET_URL_DATA(PD_HTTP)
-    TEST_ARR, TEST_C = PD_GET_STATUS(PD_URL)
+    # TEST_ARR, TEST_C = PD_GET_STATUS(PD_URL)
     PD_TBL = ttb.Texttable()
     #PD_TBL = PD_MAKE_MATRIX(TEST_ARR, TEST_R, TEST_C)
     #PD_TBL = module04.MAKE_MATRIX(TEST_ARR, TEST_R, TEST_C)

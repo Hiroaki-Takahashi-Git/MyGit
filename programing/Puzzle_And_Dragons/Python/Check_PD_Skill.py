@@ -76,6 +76,8 @@ def PD_GET_SKILL(IN_TAG):
 				#print(test)
 				SKILL_ARR.append(SKILL_TEXT)
 				#SKILL_ARR.append(SKILL_TEXT2)
+	if len(SKILL_ARR) == 0:
+		SKILL_ARR = ['スキル', 'NODATA', 'NODATA', 'NODATA', 'リーダースキル', 'NODATA', 'NODATA', 'NODATA']
 	print(SKILL_ARR)
 	return(SKILL_ARR)
 
@@ -116,8 +118,8 @@ def main(NUMBER):
     PD_URL = module01.GET_URL_DATA(PD_HTTP)
     TEST_ARR = PD_GET_SKILL(PD_URL)
     #print(TEST_ARR)
-    for item in TEST_ARR:
-    	print(item)
+    # for item in TEST_ARR:
+    # 	print(item)
 
 if __name__=="__main__":
     main(PD_NUMBER)
