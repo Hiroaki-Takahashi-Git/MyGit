@@ -33,57 +33,64 @@ def PD_MAKE_STR(ATTR, RET):
 	RES_STR = ATTR + '－＞' + RET
 	#print(RES_STR)
 	return(RES_STR)
+
+#属性の文字列変換
+def PD_CONVERT_ATTRIBUTE(IN_ATTR):
+	# print(IN_ATTR)
+	if IN_ATTR == "icon-attr-fire":
+		# print(IN_ATTR)
+		return('火')	
+	if IN_ATTR == "icon-attr-water":
+		# print(IN_ATTR)
+		return('水')	
+	if IN_ATTR == "icon-attr-wood":
+		# print(IN_ATTR)
+		return('木')	
+	if IN_ATTR == "icon-attr-light":
+		# print(IN_ATTR)
+		return('光')	
+	if IN_ATTR == "icon-attr-dark":
+		# print(IN_ATTR)
+		return('闇')
 	
 #モンスターの属性を確認する
 def PD_CHECK_ATTRIBUTE(IN_TAG):
-	ATTR_ARR = []
-	#ATTR_COL = ["属　性", "〇／×"]
-	#ATTR_ARR.extend(ATTR_COL)
-	#火属性
-	RET = IN_TAG.find('i', attrs={'class':'icon-attr-fire'})
-	FLG = PD_CHECK_RET(RET)
-	#RES_STR = PD_MAKE_STR('火', FLG)
-	#ATTR_ARR.append(RES_STR)
-	ATTR_ARR.append(FLG)
-	#print(RET)
-	#水属性
-	RET = IN_TAG.find('i', attrs={'class':'icon-attr-water'})
-	FLG = PD_CHECK_RET(RET)
-	#RES_STR = PD_MAKE_STR('水', FLG)
-	#ATTR_ARR.append(RES_STR)
-	ATTR_ARR.append(FLG)
-	#print(RET)
-	#木属性
-	RET = IN_TAG.find('i', attrs={'class':'icon-attr-wood'})
-	FLG = PD_CHECK_RET(RET)
-	#RES_STR = PD_MAKE_STR('木', FLG)
-	#ATTR_ARR.append(RES_STR)
-	ATTR_ARR.append(FLG)
-	#print(RET)
-	#光属性
-	RET = IN_TAG.find('i', attrs={'class':'icon-attr-light'})
-	FLG = PD_CHECK_RET(RET)
-	#RES_STR = PD_MAKE_STR('光', FLG)
-	#ATTR_ARR.append(RES_STR)
-	ATTR_ARR.append(FLG)
-	#print(RET)
-	#闇属性
-	RET = IN_TAG.find('i', attrs={'class':'icon-attr-dark'})
-	FLG = PD_CHECK_RET(RET)
-	#RES_STR = PD_MAKE_STR('闇', FLG)
-	#ATTR_ARR.append(RES_STR)
-	ATTR_ARR.append(FLG)
-	#print(RET)
-	return ATTR_ARR
+	ATTR_DICT = {}
+
+	#'icon-attr'を含む全てのclass属性を検出
+	ATTR_ALL = IN_TAG.find_all("i", class_=re.compile("icon-attr"))
+
+	ATTR_IDX = 1
+	for ATTR_ELEM in ATTR_ALL:
+		LIST = ATTR_ELEM.get('class')
+		# ATTR_STR = LIST[0]
+		ATTR_STR = PD_CONVERT_ATTRIBUTE(LIST[0])
+		ATTR_DICT[ATTR_STR] = ATTR_IDX
+		ATTR_IDX += 1
+	
+	ATTR_DICT2 = {
+		'主':'NODATA',
+		'副':'NODATA',
+	}
+
+	DICT_SZ = len(ATTR_DICT)
+	for ATTR_KEY in ATTR_DICT:
+		ATTR_VAL = ATTR_DICT[ATTR_KEY]
+		if 2 == DICT_SZ:
+			if 1 == ATTR_VAL:
+				ATTR_DICT2['主'] = ATTR_KEY
+			else:
+				ATTR_DICT2['副'] = ATTR_KEY
+		else:
+			ATTR_DICT2['主'] = ATTR_KEY
+			if 2 == ATTR_VAL:
+				ATTR_DICT2['副'] = ATTR_KEY
+
+	return(ATTR_DICT2)
 
 #モンスターの属性を取得する
 def PD_GET_ATTRIBUTE(IN_TAG):
 	PD_ATTR = PD_CHECK_ATTRIBUTE(IN_TAG)
-	#PD_TBL = ttb.Texttable()
-	#PD_TBL = module04.MAKE_MATRIX(PD_ATTR, 5 + 1, 2)
-	#PD_TBL.set_cols_align(["c", "c"])
-	#print(PD_TBL.draw())
-	#return(PD_TBL)
 	return(PD_ATTR)
 
 def main(NUMBER):
@@ -92,8 +99,6 @@ def main(NUMBER):
     PD_URL = module01.GET_URL_DATA(PD_HTTP)
     TEST_ARR = PD_GET_ATTRIBUTE(PD_URL)
     print(TEST_ARR)
-    #for item in TEST_ARR:
-    #	print(item)
 
 if __name__=="__main__":
     main(PD_NUMBER)

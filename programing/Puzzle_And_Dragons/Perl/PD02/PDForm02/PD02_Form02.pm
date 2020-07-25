@@ -173,13 +173,20 @@ sub Form02_Func05_DisplayGetItem {
     # 属性
     my $LF_ATTR = $FRM02_DISPMAIN01->Labelframe(-text => '属性', -width => 50, -height => 25)->grid(-row => 1, -column => 1, -padx => 5, -pady => 5, -rowspan => 2, -sticky => 'news');
     $LF_ATTR->configure(-labelanchor => 'nw');
-    my @ATTR_LIST = ('火', '水', '木', '光', '闇');
+    # my @ATTR_LIST = ('火', '水', '木', '光', '闇');
+    my @ATTR_LIST = ('主', '副');
+    my $attr_row = 0;
     foreach my $attr (@ATTR_LIST) {
         $IN_STR = sprintf("PD\tattribute\t%s", $attr);
         my $LBL_ATTR_VAL = $JSON_HASH2{$IN_STR};
-        if ($LBL_ATTR_VAL == 1) {
-            my $PD_ATTR_VAL = $LF_ATTR->Label(-text => "$attr")->pack();
-        }
+        # if ($LBL_ATTR_VAL == 1) {
+        #     my $PD_ATTR_VAL = $LF_ATTR->Label(-text => "$attr")->pack();
+        # }
+        my $PD_ATTR_VAL = $LF_ATTR->Label(-text => "$LBL_ATTR_VAL")->pack();
+        # my $LF_ATTR_UNIT = $LF_ATTR->Labelframe(-text => "$attr")->grid(-row => $attr_row, -column => 0, -padx => 5, -pady => 5, -columnspan => 2, -sticky => 'news');
+        # $LF_ATTR_UNIT->configure(-labelanchor => 'nw');
+        # my $PD_ATTR_MAIN = $LF_ATTR_UNIT->Label(-text => "$LBL_ATTR_VAL", -anchor => 'w');
+        $attr_row++;
     }
 
     # タイプ

@@ -97,18 +97,19 @@ def main(NUMBER, FNAME):
 		# print(PD_DATA_CL["assistance"])
 
 		#処理０４．モンスター属性
-		ATTR_COL = ["火", "水", "木", "光", "闇"]
+		# ATTR_COL = ["火", "水", "木", "光", "闇"]
+		# ATTR_COL = ["主", "副"]
 		ATTR_ARR = PDM_ATTR.PD_GET_ATTRIBUTE(URL)
-		ATTR_TBL = ttb.Texttable()
-		ATTR_TBL = MODULE04.MAKE_MATRIX(ATTR_COL, ATTR_ARR)
+		# ATTR_TBL = ttb.Texttable()
+		# ATTR_TBL = MODULE04.MAKE_MATRIX(ATTR_COL, ATTR_ARR)
 		# print(ATTR_TBL.draw())
 		# print("")
-		TBL_ARR.append(ATTR_TBL)
-		ATTR_DATA = cl.OrderedDict()
-		for i in range(0, len(ATTR_COL)):
-			ATTR = ATTR_ARR[i]
-			ATTR_DATA[ATTR_COL[i]] = bool(ATTR == '〇')
-		PD_DATA_CL["attribute"] = ATTR_DATA
+		# TBL_ARR.append(ATTR_TBL)
+		# ATTR_DATA = cl.OrderedDict()
+		# for i in range(0, len(ATTR_COL)):
+		# 	ATTR = ATTR_ARR[i]
+		# 	ATTR_DATA[ATTR_COL[i]] = bool(ATTR == '〇')
+		PD_DATA_CL["attribute"] = ATTR_ARR
 
 		#処理０５．モンスタータイプ
 		TYPE_ARR = PDM_TYPE.PD_GET_TYPES(URL)
@@ -257,10 +258,13 @@ def main(NUMBER, FNAME):
 		IMG_PATH = PDM_IMAGE.PD_GET_IMAGE(URL)
 		if IMG_PATH != "NO_IMAGE_URL":
 			PD_DATA_CL["img_url"] = IMG_PATH
-			REQ = request.urlopen(IMG_PATH)
-			f = open(IMG_NAME, "wb")
-			f.write(REQ.read())
-			f.close()
+			try:
+				REQ = request.urlopen(IMG_PATH)
+				f = open(IMG_NAME, "wb")
+				f.write(REQ.read())
+				f.close()
+			except:
+				print('No Image Data.\n')
 
 	else:
 		ERROR_TBL = ttb.Texttable()
