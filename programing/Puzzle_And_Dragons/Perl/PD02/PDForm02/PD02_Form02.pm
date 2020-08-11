@@ -178,11 +178,14 @@ sub Form02_Func05_DisplayGetItem {
     my $attr_row = 0;
     foreach my $attr (@ATTR_LIST) {
         $IN_STR = sprintf("PD\tattribute\t%s", $attr);
+        $attr = sprintf("%s属性", $attr);
         my $LBL_ATTR_VAL = $JSON_HASH2{$IN_STR};
         # if ($LBL_ATTR_VAL == 1) {
         #     my $PD_ATTR_VAL = $LF_ATTR->Label(-text => "$attr")->pack();
         # }
-        my $PD_ATTR_VAL = $LF_ATTR->Label(-text => "$LBL_ATTR_VAL")->pack();
+        my $LF_ATTR_FRM = $LF_ATTR->Labelframe(-text => "$attr", )->grid(-row=>$attr_row, -column=>0, -padx=>5, -pady=>5, -sticky=>'news');
+        # my $PD_ATTR_VAL = $LF_ATTR->Label(-text => "$LBL_ATTR_VAL")->pack();
+        my $PD_ATTR_VAL = $LF_ATTR_FRM->Label(-text => "$LBL_ATTR_VAL")->pack();
         # my $LF_ATTR_UNIT = $LF_ATTR->Labelframe(-text => "$attr")->grid(-row => $attr_row, -column => 0, -padx => 5, -pady => 5, -columnspan => 2, -sticky => 'news');
         # $LF_ATTR_UNIT->configure(-labelanchor => 'nw');
         # my $PD_ATTR_MAIN = $LF_ATTR_UNIT->Label(-text => "$LBL_ATTR_VAL", -anchor => 'w');
