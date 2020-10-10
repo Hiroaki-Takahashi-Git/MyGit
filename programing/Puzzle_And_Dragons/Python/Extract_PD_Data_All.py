@@ -27,8 +27,10 @@ def main(INPUT_PATH, START, STOP):
 		RTN = MyModule01.main(ID, F_NAME)
 		#print(RTN)
 		#情報取得が失敗したら、スキップ
-		if RTN is "FAILURE":
+		if RTN == "FAILURE":
 			continue
+	print('データの取得が終わりました。')
+	quit()
 		
 if __name__=="__main__":
     main(ROOT_DPATH, STRT_NUMSTR, STOP_NUMSTR)

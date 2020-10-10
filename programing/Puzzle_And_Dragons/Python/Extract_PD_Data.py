@@ -56,7 +56,7 @@ def main(NUMBER, FNAME):
 	#èàóùÇOÇPÅDURLÇÃéÊìæ
 	HTTP = MODULE03.SET_PDNUM(NUMBER)
 	URL = MODULE01.GET_URL_DATA(HTTP)
-	if URL is not "NODATA":
+	if URL != "NODATA":
 
 		#print("HTTP = " + HTTP + "\n")
 		HTTP_COL = ["URL"]
